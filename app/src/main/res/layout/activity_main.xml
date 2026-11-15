@@ -1,64 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_screen"
-    android:orientation="vertical"
-    android:padding="32dp">
+    android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/etTen"
-        style="@style/Widget.GiaPha.Input"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:hint="Tên của bạn" />
+    <include
+        android:id="@+id/appBar"
+        layout="@layout/view_app_bar" />
 
-    <EditText
-        android:id="@+id/etSdt"
-        style="@style/Widget.GiaPha.Input"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="16dp"
-        android:hint="Số điện thoại"
-        android:inputType="phone" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnGui"
-        style="@style/Widget.GiaPha.Button.Primary"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="24dp"
-        android:enabled="false"
-        android:text="Gửi mã xác thực" />
-
-    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.GiaPha.Button.Primary"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="16dp"
-        android:text="Nút chính (bật)" />
-
-    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.GiaPha.Button.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="16dp"
-        android:text="Nút phụ" />
-
-    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.GiaPha.Button.Danger"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="16dp"
-        android:text="Nút nguy hiểm" />
-
-    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.GiaPha.Button.Text"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:text="Đăng nhập" />
+        android:layout_margin="24dp"
+        android:text="Nội dung màn hình"
+        android:textColor="@color/text_primary" />
 
 </LinearLayout>
