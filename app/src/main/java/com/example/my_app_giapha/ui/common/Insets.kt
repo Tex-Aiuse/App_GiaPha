@@ -22,3 +22,15 @@ fun View.applySystemBarsPadding() {
         insets
     }
 }
+
+/** Chỉ chừa chỗ ở đáy (thanh điều hướng, bàn phím); dùng khi phần trên đã có thanh tiêu đề tự xử lý. */
+fun View.applyBottomInsetPadding() {
+    val base = paddingBottom
+    ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
+        val bars = insets.getInsets(
+            WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
+        )
+        v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, base + bars.bottom)
+        insets
+    }
+}

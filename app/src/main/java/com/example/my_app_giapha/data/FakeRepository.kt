@@ -90,7 +90,11 @@ class FakeRepository : Repository {
         if (giaLapLoi) return matKetNoi()
         val tk = nhanDang() ?: return loi(LoiApp.CHUA_DANG_NHAP, "Bạn chưa đăng nhập")
         val ds = thanVien
-            .filter { it.idTaiKhoan == tk.idTaiKhoan && it.trangThai == TrangThaiThanhVien.HOAT_DONG }
+            .filter {
+                it.idTaiKhoan == tk.idTaiKhoan &&
+                        it.trangThai == TrangThaiThanhVien.HOAT_DONG &&
+                        it.vaiTro != VaiTro.KHACH_TAM
+            }
             .mapNotNull { tv ->
                 khongGian.firstOrNull { it.idKhongGian == tv.idKhongGian }?.let { KhongGianCuaToi(it, tv.vaiTro) }
             }

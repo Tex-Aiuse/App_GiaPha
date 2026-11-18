@@ -7,6 +7,8 @@ import com.example.my_app_giapha.data.Services
 import com.example.my_app_giapha.model.LoaiTaiKhoan
 import com.example.my_app_giapha.model.TaiKhoan
 import com.example.my_app_giapha.ui.auth.LoginActivity
+import com.example.my_app_giapha.ui.profile.ProfileActivity
+import com.example.my_app_giapha.ui.space.JoinCodeActivity
 import com.example.my_app_giapha.ui.space.SpaceListActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
@@ -35,7 +37,9 @@ object Routes {
     fun moKhongGian(activity: Activity, idKhongGian: Int) =
         activity.tam("TẠM: mở cây GD-06 của không gian #$idKhongGian (bước 7)")
 
-    fun moHoSo(activity: Activity) = activity.tam("TẠM: GD-04 Hồ sơ (lượt 6d)")
+    fun moHoSo(activity: Activity) =
+        activity.startActivity(Intent(activity, ProfileActivity::class.java))
 
-    fun moNhapMa(activity: Activity) = activity.tam("TẠM: GD-05 Nhập mã (lượt 6d)")
+    fun moNhapMa(activity: Activity) =
+        activity.startActivity(Intent(activity, JoinCodeActivity::class.java))
 }
