@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_screen">
+
+    <!-- Nội dung chính -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/appBar"
+                layout="@layout/view_app_bar" />
+
+            <EditText
+                android:id="@+id/etSearch"
+                style="@style/Widget.GiaPha.Input"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_margin="16dp"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="12dp"
+                android:hint="Tìm theo tên không gian..."
+                android:imeOptions="actionSearch"
+                android:importantForAutofill="no"
+                android:inputType="text" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSpaces"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="112dp" />
+
+                <com.example.my_app_giapha.ui.common.StateView
+                    android:id="@+id/stateView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:fontFamily="@font/be_vietnam_pro_semibold"
+            android:text="Tạo Không gian mới"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/brown_primary"
+            app:icon="@drawable/ic_add"
+            app:iconTint="@color/white" />
+    </FrameLayout>
+
+    <!-- Sidebar -->
+    <LinearLayout
+        android:id="@+id/drawerPanel"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/surface"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/headerProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/tvAvatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_circle_green"
+                android:fontFamily="@font/be_vietnam_pro_bold"
+                android:gravity="center"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvAccountName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/be_vietnam_pro_bold"
+                    android:maxLines="1"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvAccountPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/be_vietnam_pro"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_default" />
+
+        <TextView
+            android:id="@+id/itemSpaces"
+            style="@style/Widget.GiaPha.DrawerItem"
+            android:background="@color/peach_light"
+            android:text="Xem không gian" />
+
+        <TextView
+            android:id="@+id/itemFilter"
+            style="@style/Widget.GiaPha.DrawerItem"
+            android:background="?attr/selectableItemBackground"
+            android:text="Bộ lọc" />
+
+        <TextView
+            android:id="@+id/itemTrash"
+            style="@style/Widget.GiaPha.DrawerItem"
+            android:background="?attr/selectableItemBackground"
+            android:text="Thùng rác" />
+
+        <TextView
+            android:id="@+id/itemJoinCode"
+            style="@style/Widget.GiaPha.DrawerItem"
+            android:background="?attr/selectableItemBackground"
+            android:text="Nhập mã lời mời" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_default" />
+
+        <TextView
+            android:id="@+id/itemLogout"
+            style="@style/Widget.GiaPha.DrawerItem"
+            android:background="?attr/selectableItemBackground"
+            android:text="Đăng xuất"
+            android:textColor="@color/danger" />
+    </LinearLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
