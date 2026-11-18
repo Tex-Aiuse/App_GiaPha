@@ -35,3 +35,11 @@ fun EditText.attachPhoneFormat(onChange: ((String) -> Unit)? = null) {
         }
     })
 }
+
+/** "0912345678" -> "0912 345 678" */
+fun formatPhone(digits: String) = buildString {
+    digits.forEachIndexed { i, ch ->
+        if (i == 4 || i == 7) append(' ')
+        append(ch)
+    }
+}
