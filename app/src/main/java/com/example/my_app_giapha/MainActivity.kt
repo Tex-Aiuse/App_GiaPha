@@ -8,6 +8,7 @@ import com.example.my_app_giapha.ui.common.setRoleBadge
 import com.example.my_app_giapha.ui.common.setBlockedBadge
 import com.example.my_app_giapha.ui.common.attachPhoneFormat
 import com.example.my_app_giapha.databinding.ActivityMainBinding
+import com.example.my_app_giapha.ui.common.showConfirmDialog
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +31,17 @@ class MainActivity : AppCompatActivity() {
         binding.b4.setRoleBadge("ThanhVienHo")
         binding.b5.setRoleBadge("KhachTam")
         binding.b6.setBlockedBadge()
+
+        binding.b1.setOnClickListener {
+            showConfirmDialog(
+                "Xóa Gia phả họ Nguyễn?",
+                "Toàn bộ dữ liệu — thành viên, cây gia phả, tiểu sử, bình luận — sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.",
+                "Xóa"
+            ) { }
+        }
+        binding.b3.setOnClickListener {
+            showConfirmDialog("Cấp quyền Quản lý?", "Nguyễn Minh Khôi sẽ có thể chỉnh sửa cây gia phả.", "Cấp", destructive = false) { }
+        }
 
     }
 }
