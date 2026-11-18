@@ -18,6 +18,6 @@ data class QHeHonNhan(
     val ngayCoi: LocalDate? = null,
     val ngayLyHon: LocalDate? = null,
     val trangThai: TrangThaiHonNhan = TrangThaiHonNhan.DANG_KET_HON,
-    val thuTuHonNhan: Int? = null
+    val thuTuHonNhan: Int? = null,
     val hienThiLienKet: Boolean = true
 )
