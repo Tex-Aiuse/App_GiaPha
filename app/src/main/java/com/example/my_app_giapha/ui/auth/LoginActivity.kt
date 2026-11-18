@@ -2,7 +2,7 @@ package com.example.my_app_giapha.ui.auth
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.my_app_giapha.R
 import com.example.my_app_giapha.data.Kq
@@ -65,8 +65,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         b.tvGoRegister.setOnClickListener {
-            // TẠM: lượt 6b đổi thành mở RegisterActivity.
-            Toast.makeText(this, "Màn Đăng ký làm ở lượt sau", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 
