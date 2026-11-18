@@ -48,5 +48,7 @@ class MainActivity : AppCompatActivity() {
         binding.b5.setOnClickListener { binding.stateView.showError { binding.stateView.showLoading() } }
         binding.b6.setOnClickListener { binding.stateView.hide() }
 
+        binding.pagination.onPageChange = { p -> binding.pagination.setPage(p, 15) }
+        binding.pagination.setPage(2, 15)
     }
 }

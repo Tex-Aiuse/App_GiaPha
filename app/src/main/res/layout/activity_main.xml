@@ -60,4 +60,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.example.my_app_giapha.ui.common.PaginationView
+        android:id="@+id/pagination"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
