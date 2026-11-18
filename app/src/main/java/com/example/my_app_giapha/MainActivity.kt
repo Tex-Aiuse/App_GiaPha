@@ -43,5 +43,10 @@ class MainActivity : AppCompatActivity() {
             showConfirmDialog("Cấp quyền Quản lý?", "Nguyễn Minh Khôi sẽ có thể chỉnh sửa cây gia phả.", "Cấp", destructive = false) { }
         }
 
+        binding.b2.setOnClickListener { binding.stateView.showLoading() }
+        binding.b4.setOnClickListener { binding.stateView.showEmpty("Chưa có thành viên nào.") }
+        binding.b5.setOnClickListener { binding.stateView.showError { binding.stateView.showLoading() } }
+        binding.b6.setOnClickListener { binding.stateView.hide() }
+
     }
 }
