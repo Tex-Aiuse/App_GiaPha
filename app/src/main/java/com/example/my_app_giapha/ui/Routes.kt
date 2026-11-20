@@ -14,6 +14,7 @@ import com.example.my_app_giapha.ui.tree.TreeActivity
 import com.example.my_app_giapha.ui.person.PersonDetailActivity
 import com.example.my_app_giapha.ui.person.PersonFormActivity
 import com.example.my_app_giapha.ui.person.ParentRelationActivity
+import com.example.my_app_giapha.ui.person.MarriageActivity
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
 
@@ -87,7 +88,11 @@ object Routes {
 
 
     fun moQuanHeHonNhan(activity: Activity, idKhongGian: Int, idO: Int) =
-        activity.tam("TẠM: GD-13 Quan hệ hôn nhân")
+        activity.startActivity(
+            Intent(activity, MarriageActivity::class.java)
+                .putExtra(MarriageActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+                .putExtra(MarriageActivity.EXTRA_ID_O, idO)
+        )
 
     fun moThemO(activity: Activity, idKhongGian: Int) =
         activity.startActivity(
