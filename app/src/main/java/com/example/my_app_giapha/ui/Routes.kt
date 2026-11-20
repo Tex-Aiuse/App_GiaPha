@@ -24,6 +24,7 @@ import com.example.my_app_giapha.ui.space.InviteMemberActivity
 import com.example.my_app_giapha.ui.space.InviteCodeActivity
 import com.example.my_app_giapha.ui.space.GanOActivity
 import com.example.my_app_giapha.ui.space.CaiDatKhongGianActivity
+import com.example.my_app_giapha.ui.space.QuanLyVaiTroActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -170,7 +171,10 @@ object Routes {
     fun veDanhSachKhongGian(activity: Activity) = activity.moMoi(SpaceListActivity::class.java)
 
     fun moQuanLyVaiTro(activity: Activity, idKhongGian: Int) =
-        activity.tam("TẠM: GD-19 Quản lý vai trò")
+        activity.startActivity(
+            Intent(activity, QuanLyVaiTroActivity::class.java)
+                .putExtra(QuanLyVaiTroActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+        )
 
     fun moHoSo(activity: Activity) =
         activity.startActivity(Intent(activity, ProfileActivity::class.java))

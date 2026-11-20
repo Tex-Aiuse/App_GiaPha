@@ -1174,4 +1174,58 @@ class FakeRepository : Repository {
         khongGian.removeAll { it.idKhongGian == idKhongGian }
         return Kq.Ok(Unit)
     }
+    // ---------------- Quản lý vai trò và chặn (GD-19) ----------------
+
+    /** Chỉ Admin. Trả về vị trí dòng của mục tiêu trong `thanVien`; không cho tác động lên Admin (kể cả chính mình). */
+    private fun mucTieuQuanLy(idKhongGian: Int, idTaiKhoan: Int): Kq<Int> {
+        quyenCaiDat(idKhongGian)?.let { return it }
+        val i = thanVien.indexOfFirst {
+            it.idKhongGian == idKhongGian && it.idTaiKhoan == idTaiKhoan && it.trangThai != TrangThaiThanhVien.DA_ROI
+        }
+        if (i < 0) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
+        if (thanVien[i].vaiTro == VaiTro.ADMIN) return loi(LoiApp.KHONG_CO_QUYEN, "Không thể thao tác lên Admin")
+        return Kq.Ok(i)
+    }
+
+    override fun capQuanLy(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        val i = when (val r = mucTieuQuanLy(idKhongGian, idTaiKhoan)) { is Kq.Loi -> return r; is Kq.Ok -> r.giaTri }
+        val t = thanVien[i]
+        if (t.vaiTro != VaiTro.THANH_VIEN || t.trangThai != TrangThaiThanhVien.HOAT_DONG)
+            return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Chỉ Thành viên đang hoạt động mới được cấp Quản lý")
+        thanVien[i] = t.copy(vaiTro = VaiTro.QUAN_LY)
+        return Kq.Ok(Unit)
+    }
+
+    override fun haXuongThanhVien(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        val i = when (val r = mucTieuQuanLy(idKhongGian, idTaiKhoan)) { is Kq.Loi -> return r; is Kq.Ok -> r.giaTri }
+        val t = thanVien[i]
+        if (t.vaiTro != VaiTro.QUAN_LY) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Người này không phải Quản lý")
+        thanVien[i] = t.copy(vaiTro = VaiTro.THANH_VIEN)
+        return Kq.Ok(Unit)
+    }
+
+    override fun chanThanhVien(idKhongGian: Int, idTaiKhoan: Int, lyDo: String?): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        val i = when (val r = mucTieuQuanLy(idKhongGian, idTaiKhoan)) { is Kq.Loi -> return r; is Kq.Ok -> r.giaTri }
+        val t = thanVien[i]
+        if (t.trangThai == TrangThaiThanhVien.BI_CAM) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Thành viên này đã bị chặn")
+        thanVien[i] = t.copy(
+            trangThai = TrangThaiThanhVien.BI_CAM,
+            ngayCam = LocalDateTime.now(),
+            lyDoCam = lyDo.hoacNull(),
+            idNguoiCam = nhanDang()?.idTaiKhoan
+        )
+        return Kq.Ok(Unit)
+    }
+
+    override fun goChan(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        val i = when (val r = mucTieuQuanLy(idKhongGian, idTaiKhoan)) { is Kq.Loi -> return r; is Kq.Ok -> r.giaTri }
+        val t = thanVien[i]
+        if (t.trangThai != TrangThaiThanhVien.BI_CAM) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Thành viên này không bị chặn")
+        thanVien[i] = t.copy(trangThai = TrangThaiThanhVien.HOAT_DONG, ngayCam = null, lyDoCam = null, idNguoiCam = null)
+        return Kq.Ok(Unit)
+    }
 }

@@ -305,4 +305,13 @@ interface Repository {
     fun datRiengTu(idKhongGian: Int, bat: Boolean): Kq<Unit>
     /** Xóa vĩnh viễn không gian cùng toàn bộ dữ liệu (thứ tự như trong SQL, không dùng CASCADE). */
     fun xoaKhongGian(idKhongGian: Int): Kq<Unit>
+    // ---- Quản lý vai trò và chặn (GD-19). Chỉ Admin, không tác động lên Admin hay chính mình ----
+    /** Thành viên (đang hoạt động) lên Quản lý. */
+    fun capQuanLy(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit>
+    /** Quản lý xuống Thành viên. */
+    fun haXuongThanhVien(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit>
+    /** Chặn khỏi không gian, lý do tùy chọn. Ghi ngày chặn và người chặn. */
+    fun chanThanhVien(idKhongGian: Int, idTaiKhoan: Int, lyDo: String?): Kq<Unit>
+    /** Gỡ chặn: về Hoạt động, xóa ngày chặn, lý do, người chặn. */
+    fun goChan(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit>
 }
