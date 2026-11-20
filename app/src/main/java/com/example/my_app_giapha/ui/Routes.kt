@@ -10,6 +10,7 @@ import com.example.my_app_giapha.ui.auth.LoginActivity
 import com.example.my_app_giapha.ui.profile.ProfileActivity
 import com.example.my_app_giapha.ui.space.JoinCodeActivity
 import com.example.my_app_giapha.ui.space.SpaceListActivity
+import com.example.my_app_giapha.ui.tree.TreeActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -34,12 +35,30 @@ object Routes {
         activity.moMoi(LoginActivity::class.java)
     }
 
-    fun moKhongGian(activity: Activity, idKhongGian: Int) {
+    fun moKhongGian(activity: Activity, idKhongGian: Int) =
         activity.startActivity(
-            Intent(activity, com.example.my_app_giapha.ui.tree.TreeDemoActivity::class.java)
-                .putExtra(com.example.my_app_giapha.ui.tree.TreeDemoActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+            Intent(activity, TreeActivity::class.java)
+                .putExtra(TreeActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
         )
-    }
+
+    // Các lối đi từ GD-06. Dòng "TẠM" được thay khi làm tới màn tương ứng.
+    fun moChiTietO(activity: Activity, idKhongGian: Int, idO: Int) =
+        activity.tam("TẠM: GD-08 Chi tiết Ô #$idO (bước 8)")
+
+    fun moThemO(activity: Activity, idKhongGian: Int) =
+        activity.tam("TẠM: GD-07 Thêm thành viên (bước 8)")
+
+    fun moDanhSachThanhVien(activity: Activity, idKhongGian: Int) =
+        activity.tam("TẠM: GD-14 Danh sách thành viên")
+
+    fun moMaMoi(activity: Activity, idKhongGian: Int) =
+        activity.tam("TẠM: GD-16 Mã mời")
+
+    fun moCaiDatKhongGian(activity: Activity, idKhongGian: Int) =
+        activity.tam("TẠM: GD-18 Cài đặt Không gian")
+
+    fun moQuanLyVaiTro(activity: Activity, idKhongGian: Int) =
+        activity.tam("TẠM: GD-19 Quản lý vai trò")
 
     fun moHoSo(activity: Activity) =
         activity.startActivity(Intent(activity, ProfileActivity::class.java))
