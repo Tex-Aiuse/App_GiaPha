@@ -22,6 +22,7 @@ import com.example.my_app_giapha.ui.person.AnhDaiDienActivity
 import com.example.my_app_giapha.ui.space.MemberListActivity
 import com.example.my_app_giapha.ui.space.InviteMemberActivity
 import com.example.my_app_giapha.ui.space.InviteCodeActivity
+import com.example.my_app_giapha.ui.space.GanOActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -140,7 +141,17 @@ object Routes {
         )
 
     fun moGanO(activity: Activity, idKhongGian: Int, idTaiKhoan: Int) =
-        activity.tam("TẠM: GD-17 Gán Ô cho tài khoản #$idTaiKhoan")
+        activity.startActivity(
+            Intent(activity, GanOActivity::class.java)
+                .putExtra(GanOActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+                .putExtra(GanOActivity.EXTRA_ID_TAI_KHOAN, idTaiKhoan)
+        )
+
+    /** GD-17 → GD-07 (thêm mới) kèm cờ "tạo Ô rồi gán luôn cho tài khoản này". Trả Intent để GD-17 mở bằng ActivityResult. */
+    fun intentThemOVaGan(activity: Activity, idKhongGian: Int, idTaiKhoan: Int): Intent =
+        Intent(activity, PersonFormActivity::class.java)
+            .putExtra(PersonFormActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+            .putExtra(PersonFormActivity.EXTRA_ID_TAI_KHOAN_GAN, idTaiKhoan)
 
     fun moMaMoi(activity: Activity, idKhongGian: Int) =
         activity.startActivity(

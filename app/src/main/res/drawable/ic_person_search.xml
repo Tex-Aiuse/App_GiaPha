@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Biểu tượng "tìm người" của lựa chọn "Chọn Ô có sẵn" ở GD-17: người + kính lúp, nét nâu -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/brown_primary"
+        android:pathData="M9,4a4,4 0,1 0,0 8a4,4 0,1 0,0 -8zM9,6a2,2 0,1 1,0 4a2,2 0,1 1,0 -4z" />
+    <path
+        android:fillColor="@color/brown_primary"
+        android:pathData="M2,20v-2c0,-2.66 5.33,-4 8,-4c0.57,0 1.2,0.06 1.84,0.17A6,6 0,0 0,10.3 16C7.9,16 4,17.1 4,18v0h6.1c0.1,0.7 0.4,1.4 0.8,2H2z" />
+    <path
+        android:fillColor="@color/brown_primary"
+        android:pathData="M17,13a4,4 0,1 0,2.3 7.27l2.2,2.2l1.4,-1.4l-2.2,-2.2A4,4 0,0 0,17 13zM17,15a2,2 0,1 1,0 4a2,2 0,1 1,0 -4z" />
+</vector>

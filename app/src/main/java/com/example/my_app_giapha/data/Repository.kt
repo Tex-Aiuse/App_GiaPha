@@ -289,4 +289,12 @@ interface Repository {
     // ---- Mã mời (GD-16) ----
     /** Admin, Quản lý, Thành viên, Thành viên hờ (không phải Khách tạm). Mã dùng một lần, hiệu lực 5 phút. */
     fun taoMaMoi(idKhongGian: Int): Kq<MaCode>
+
+    // ---- Gán Ô cho Thành viên hờ (GD-17) ----
+    /** Admin/Quản lý. Tìm Ô theo tên trong các Ô chưa được gán cho tài khoản nào của không gian. */
+    fun timOChuaGan(idKhongGian: Int, tuKhoa: String): Kq<List<KetQuaTim>>
+    /** Admin/Quản lý. Gán Ô cho một Thành viên hờ chưa có Ô, vai trò thành Thành viên. Chặn nếu Ô đã có người gán. */
+    fun ganO(idKhongGian: Int, idTaiKhoan: Int, idO: Int): Kq<Unit>
+    /** Như themO, rồi gán luôn Ô mới cho Thành viên hờ. Lỗi ở bước nào thì không ghi gì. */
+    fun themOVaGan(idKhongGian: Int, f: FormO, quanHe: QuanHeMoi?, idTaiKhoan: Int): Kq<OThanhVien>
 }

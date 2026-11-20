@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hình minh họa "không tìm thấy" của GD-17: kính lúp nâu, nền kính xanh nhạt -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <path
+        android:fillColor="@color/green_light"
+        android:strokeColor="@color/brown_primary"
+        android:strokeWidth="4"
+        android:pathData="M18,42a24,24 0,1 0,48 0a24,24 0,1 0,-48 0" />
+    <path
+        android:strokeColor="@color/brown_primary"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M59,59L82,82" />
+    <path
+        android:strokeColor="@color/brown_primary"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M30,34C32,30 36,28 40,28" />
+</vector>

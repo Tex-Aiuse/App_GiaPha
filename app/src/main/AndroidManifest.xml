@@ -97,6 +97,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.space.GanOActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

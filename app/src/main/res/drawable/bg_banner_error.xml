@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Khung báo lỗi của GD-17: nền trắng, bo 12dp, viền trái đỏ 4dp -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/danger" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item android:left="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/surface" />
+            <corners
+                android:bottomRightRadius="12dp"
+                android:topRightRadius="12dp" />
+        </shape>
+    </item>
+</layer-list>

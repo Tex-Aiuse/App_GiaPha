@@ -35,6 +35,8 @@ class PersonFormActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_ID_KHONG_GIAN = "idKhongGian"
         const val EXTRA_ID_O = "idO"
+        /** Có giá trị (khác 0): sau khi lưu Ô mới thì gán luôn cho tài khoản Thành viên hờ này (luồng từ GD-17). */
+        const val EXTRA_ID_TAI_KHOAN_GAN = "idTaiKhoanGan"
     }
 
     private lateinit var b: ActivityPersonFormBinding
@@ -179,10 +181,22 @@ class PersonFormActivity : AppCompatActivity() {
             conSong = conSong,
             ngayMat = if (conSong) null else ngayMat
         )
-        when (val r = if (cheDoSua) repo.suaO(idO, f) else repo.themO(idKhongGian, f, quanHe)) {
+        val idTkGan = intent.getIntExtra(EXTRA_ID_TAI_KHOAN_GAN, 0)
+        val ketQua = when {
+            cheDoSua -> repo.suaO(idO, f)
+            idTkGan != 0 -> repo.themOVaGan(idKhongGian, f, quanHe, idTkGan)
+            else -> repo.themO(idKhongGian, f, quanHe)
+        }
+        when (val r = ketQua) {
             is Kq.Loi -> Snackbar.make(b.root, r.thongBao, Snackbar.LENGTH_LONG).show()
             is Kq.Ok -> {
-                Toast.makeText(this, if (cheDoSua) "Đã lưu thay đổi" else "Đã thêm thành viên", Toast.LENGTH_SHORT).show()
+                val tb = when {
+                    cheDoSua -> "Đã lưu thay đổi"
+                    idTkGan != 0 -> "Đã thêm thành viên và gán Ô"
+                    else -> "Đã thêm thành viên"
+                }
+                Toast.makeText(this, tb, Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
                 finish()
             }
         }

@@ -1063,4 +1063,59 @@ class FakeRepository : Repository {
         maCode.add(moi)
         return Kq.Ok(moi)
     }
+    // ---------------- Gán Ô cho Thành viên hờ (GD-17) ----------------
+
+    private fun quyenGanO(idKhongGian: Int): Kq.Loi? =
+        if (vaiTroCuaToi(idKhongGian)?.vaiTro?.laQuanTri == true) null
+        else loi(LoiApp.KHONG_CO_QUYEN, "Bạn không có quyền gán Ô")
+
+    /** Vị trí dòng của một Thành viên hờ đang hoạt động và chưa có Ô; ngược lại là lỗi. */
+    private fun timDongHoChoGan(idKhongGian: Int, idTaiKhoan: Int): Kq<Int> {
+        val i = thanVien.indexOfFirst {
+            it.idKhongGian == idKhongGian && it.idTaiKhoan == idTaiKhoan &&
+                    it.trangThai == TrangThaiThanhVien.HOAT_DONG
+        }
+        if (i < 0) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
+        val d = thanVien[i]
+        if (d.vaiTro != VaiTro.THANH_VIEN_HO || d.idOThanhVien != null)
+            return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Tài khoản này không còn là Thành viên hờ chưa có Ô")
+        return Kq.Ok(i)
+    }
+
+    override fun timOChuaGan(idKhongGian: Int, tuKhoa: String): Kq<List<KetQuaTim>> {
+        if (giaLapLoi) return matKetNoi()
+        quyenGanO(idKhongGian)?.let { return it }
+        val daGan = thanVien.filter { it.idKhongGian == idKhongGian }.mapNotNull { it.idOThanhVien }.toSet()
+        return Kq.Ok(timTheoTen(idKhongGian, tuKhoa, daGan))
+    }
+
+    override fun ganO(idKhongGian: Int, idTaiKhoan: Int, idO: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        quyenGanO(idKhongGian)?.let { return it }
+        val i = when (val r = timDongHoChoGan(idKhongGian, idTaiKhoan)) {
+            is Kq.Loi -> return r
+            is Kq.Ok -> r.giaTri
+        }
+        val o = layO(idO)
+        if (o == null || o.idKhongGian != idKhongGian) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy Ô này")
+        if (thanVien.any { it.idKhongGian == idKhongGian && it.idOThanhVien == idO })
+            return loi(LoiApp.DA_TON_TAI, "Ô này vừa được gán cho người khác. Vui lòng chọn Ô khác.")
+        thanVien[i] = thanVien[i].copy(idOThanhVien = idO, vaiTro = VaiTro.THANH_VIEN)
+        return Kq.Ok(Unit)
+    }
+
+    override fun themOVaGan(idKhongGian: Int, f: FormO, quanHe: QuanHeMoi?, idTaiKhoan: Int): Kq<OThanhVien> {
+        if (giaLapLoi) return matKetNoi()
+        quyenGanO(idKhongGian)?.let { return it }
+        val i = when (val r = timDongHoChoGan(idKhongGian, idTaiKhoan)) {   // kiểm tra trước khi tạo Ô
+            is Kq.Loi -> return r
+            is Kq.Ok -> r.giaTri
+        }
+        val moi = when (val r = themO(idKhongGian, f, quanHe)) {
+            is Kq.Loi -> return r
+            is Kq.Ok -> r.giaTri
+        }
+        thanVien[i] = thanVien[i].copy(idOThanhVien = moi.idOThanhVien, vaiTro = VaiTro.THANH_VIEN)
+        return Kq.Ok(moi)
+    }
 }
