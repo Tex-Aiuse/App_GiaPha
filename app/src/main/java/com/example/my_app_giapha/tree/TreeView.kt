@@ -18,6 +18,12 @@ import androidx.core.content.res.ResourcesCompat
 import com.example.my_app_giapha.R
 import com.example.my_app_giapha.model.OThanhVien
 import kotlin.math.ceil
+import android.graphics.Bitmap
+import com.example.my_app_giapha.model.Avatar
+import com.example.my_app_giapha.model.HieuUngAvatar
+import com.example.my_app_giapha.model.KhungAvatar
+import com.example.my_app_giapha.ui.common.AnhLoader
+import com.example.my_app_giapha.ui.common.AvatarPainter
 
 /**
  * TreeView (bước 7b): CHỈ VẼ. Nhận KetQuaBoCuc từ LayoutEngine, không tính bố cục.
@@ -161,23 +167,37 @@ class TreeView @JvmOverloads constructor(
 
     private val khung = RectF()
     private val duong = Path()
-
+    private class AnhThe(val bitmap: Bitmap?, val khung: KhungAvatar, val hieu: HieuUngAvatar)
+    private var anhTheoId: Map<Int, AnhThe> = emptyMap()
+    private val vungAnh = RectF()
+    private val veAvatar = AvatarPainter(nau, XANH_NHAT, chuCai.typeface)
     private fun font(id: Int, du: Typeface): Typeface =
         try { ResourcesCompat.getFont(context, id) ?: du } catch (_: Exception) { du }
 
     // ---------------------------------------------------------------------------------------
 
-    /** Đặt dữ liệu. `o` là danh sách Ô cần để lấy tên, họ tên, Trưởng tộc. */
-    fun datDuLieu(kq: KetQuaBoCuc, o: List<OThanhVien>, cauHinh: CauHinhCay = CauHinhCay()) {
+    /** Đặt dữ liệu. `o` là danh sách Ô cần để lấy tên, họ tên, Trưởng tộc; `anh`: ảnh đang dùng của từng Ô. */
+    fun datDuLieu(
+        kq: KetQuaBoCuc, o: List<OThanhVien>, cauHinh: CauHinhCay = CauHinhCay(),
+        anh: Map<Int, Avatar> = emptyMap()
+    ) {
         ketQua = kq
         nutChon = null
         theChon = emptySet()
         this.cauHinh = cauHinh
         oTheoId = o.associateBy { it.idOThanhVien }
+        // Ảnh nhỏ (256px) vì thẻ chỉ rộng 36 đơn vị; AnhLoader có cache nên lần sau không giải mã lại
+        anhTheoId = anh.mapValues { (_, a) ->
+            AnhThe(
+                AnhLoader.tai(context, a.duongDanAnh, 256),
+                KhungAvatar.fromDb(a.loaiKhung), HieuUngAvatar.fromDb(a.hieuUng)
+            )
+        }
         taoChuTen(kq)
         requestLayout()
         invalidate()
     }
+
 
     private fun taoChuTen(kq: KetQuaBoCuc) {
         val tp = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -325,9 +345,19 @@ class TreeView @JvmOverloads constructor(
         // avatar tròn đường kính 36, chữ cái đầu của tên gọi (từ cuối)
         val cx = t.x + w / 2f
         val cy = t.y + 8f + 18f
-        c.drawCircle(cx, cy, 18f, cuAvatar)
-        val chu = chuCaiDau(o?.hoTen)
-        c.drawText(chu, cx, cy - (chuCai.ascent() + chuCai.descent()) / 2f, chuCai)
+        val anh = anhTheoId[t.id]
+        if (anh != null) {
+            vungAnh.set(cx - 18f, cy - 18f, cx + 18f, cy + 18f)
+            veAvatar.ve(
+                c, vungAnh, anh.bitmap, chuCaiDau(o?.hoTen), anh.khung, anh.hieu, 1f,
+                lamMo = o?.conSong == false
+            )
+        } else {
+            c.drawCircle(cx, cy, 18f, cuAvatar)
+            val chu = chuCaiDau(o?.hoTen)
+            c.drawText(chu, cx, cy - (chuCai.ascent() + chuCai.descent()) / 2f, chuCai)
+        }
+
 
         // tên tối đa 2 dòng, dưới avatar
         val bo = chuTen[t.id]

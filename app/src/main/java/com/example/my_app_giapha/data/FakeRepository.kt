@@ -187,13 +187,15 @@ class FakeRepository : Repository {
                 honNhan = honNhan.filter { it.idChong in ids && it.idVo in ids },
                 anhDangDung = avatar
                     .filter { it.idOThanhVien in ids && it.trangThai == TrangThaiAvatar.DANG_DUNG }
-                    .associate { it.idOThanhVien to it.duongDanAnh }
+                    .associateBy { it.idOThanhVien }
+
             )
         )
     }
 
     // ---------------- Chi tiết Ô (GD-08) ----------------
-
+    private fun anhDangDungCua(idO: Int): Avatar? =
+        avatar.firstOrNull { it.idOThanhVien == idO && it.trangThai == TrangThaiAvatar.DANG_DUNG }
     private fun layO(idO: Int) = oThanhVien.firstOrNull { it.idOThanhVien == idO }
     private fun thayO(moi: OThanhVien) { oThanhVien[oThanhVien.indexOfFirst { it.idOThanhVien == moi.idOThanhVien }] = moi }
 
@@ -206,7 +208,7 @@ class FakeRepository : Repository {
             return loi(LoiApp.KHONG_GIAN_RIENG_TU, "Không gian này đang ở chế độ riêng tư")
 
         fun nguoi(id: Int, nhan: String?) = oThanhVien.first { it.idOThanhVien == id }
-            .let { NguoiLienQuan(it.idOThanhVien, it.hoTen, nhan, it.conSong) }
+            .let { NguoiLienQuan(it.idOThanhVien, it.hoTen, nhan, it.conSong, anhDangDungCua(it.idOThanhVien)) }
 
         val chaMe = quanHeChaMe.filter { it.idCon == idO }
             .sortedWith(compareBy({ it.loai.ordinal }, { it.idPhuHuynh }))
@@ -218,7 +220,8 @@ class FakeRepository : Repository {
             .map { id -> oThanhVien.first { it.idOThanhVien == id } }
             .sortedWith(compareBy({ it.ngaySinh ?: java.time.LocalDate.MAX }, { it.idOThanhVien }))
             .map { nguoi(it.idOThanhVien, null) }
-        return Kq.Ok(ChiTietO(o, toi, chaMe, voChong, con))
+        val anh = avatar.firstOrNull { it.idOThanhVien == idO && it.trangThai == TrangThaiAvatar.DANG_DUNG }
+        return Kq.Ok(ChiTietO(o, toi, chaMe, voChong, con, anh))
     }
 
     override fun datTuVong(idO: Int, conSong: Boolean, ngayMat: java.time.LocalDate?): Kq<OThanhVien> {
@@ -447,7 +450,8 @@ class FakeRepository : Repository {
                     }
                     else -> "Chưa có quan hệ"
                 }
-                KetQuaTim(o.idOThanhVien, o.hoTen, nguCanh, vc.size)
+                KetQuaTim(o.idOThanhVien, o.hoTen, nguCanh, vc.size, anhDangDungCua(o.idOThanhVien))
+
             }
     }
 
@@ -530,7 +534,9 @@ class FakeRepository : Repository {
         val o = layO(idO) ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
         quyenQuanTri(o.idKhongGian)?.let { return it }
         fun dong(r: QuanHeChaMe, idNguoi: Int): DongQuanHeChaMe? =
-            layO(idNguoi)?.let { DongQuanHeChaMe(it.idOThanhVien, it.hoTen, it.conSong, r.loai, r.ngayXacLap) }
+            layO(idNguoi)?.let {
+                DongQuanHeChaMe(it.idOThanhVien, it.hoTen, it.conSong, r.loai, r.ngayXacLap, anhDangDungCua(it.idOThanhVien))
+            }
 
         val chaMe = quanHeChaMe.filter { it.idCon == idO }
             .sortedWith(compareBy({ it.loai.ordinal }, { it.idPhuHuynh }))
@@ -626,7 +632,11 @@ class FakeRepository : Repository {
             .sortedWith(compareBy({ it.thuTuHonNhan ?: Int.MAX_VALUE }, { it.id }))
             .mapNotNull { h ->
                 layO(if (h.idChong == idO) h.idVo else h.idChong)?.let {
-                    DongHonNhan(h.id, it.idOThanhVien, it.hoTen, it.conSong, h.trangThai, h.ngayCoi, h.ngayLyHon, h.thuTuHonNhan)
+                    DongHonNhan(
+                        h.id, it.idOThanhVien, it.hoTen, it.conSong, h.trangThai, h.ngayCoi, h.ngayLyHon,
+                        h.thuTuHonNhan, anhDangDungCua(it.idOThanhVien)
+                    )
+
                 }
             }
         return Kq.Ok(HonNhanCuaO(o, ds))
@@ -876,6 +886,69 @@ class FakeRepository : Repository {
         val o = layO(t.idOThanhVien) ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
         quyenQuanTri(o.idKhongGian)?.let { return it }
         thanhTuu.removeAll { it.idThanhTuu == idThanhTuu }
+        return Kq.Ok(Unit)
+    }
+    // ---------------- Ảnh đại diện (GD-11) ----------------
+
+    private fun kiemTraKieuAnh(khung: String, hieuUng: String): Kq.Loi? =
+        if (KhungAvatar.hopLe(khung) && HieuUngAvatar.hopLe(hieuUng)) null
+        else loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Khung hoặc hiệu ứng không hợp lệ")
+
+    override fun anhDaiDienCua(idO: Int): Kq<AnhDaiDienO> {
+        if (giaLapLoi) return matKetNoi()
+        val o = layO(idO) ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
+        quyenQuanTri(o.idKhongGian)?.let { return it }
+        val toi = vaiTroCuaToi(o.idKhongGian) ?: return loi(LoiApp.KHONG_CO_QUYEN, "Bạn không có quyền thực hiện thao tác này")
+        val cuaO = avatar.filter { it.idOThanhVien == idO }
+        val dangDung = cuaO.firstOrNull { it.trangThai == TrangThaiAvatar.DANG_DUNG }
+        val lichSu = cuaO.filter { it.trangThai == TrangThaiAvatar.LICH_SU }.sortedByDescending { it.ngayTao }
+        return Kq.Ok(AnhDaiDienO(o, toi, dangDung, lichSu))
+    }
+
+    override fun themAnhDaiDien(idO: Int, duongDanAnh: String, loaiKhung: String, hieuUng: String): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        val o = layO(idO) ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
+        quyenQuanTri(o.idKhongGian)?.let { return it }
+        if (duongDanAnh.isBlank()) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Chưa có ảnh để lưu")
+        kiemTraKieuAnh(loaiKhung, hieuUng)?.let { return it }
+        for (i in avatar.indices) {
+            if (avatar[i].idOThanhVien == idO && avatar[i].trangThai == TrangThaiAvatar.DANG_DUNG)
+                avatar[i] = avatar[i].copy(trangThai = TrangThaiAvatar.LICH_SU)
+        }
+        avatar.add(
+            Avatar(
+                idAvatar = (avatar.maxOfOrNull { it.idAvatar } ?: 0) + 1, idOThanhVien = idO,
+                duongDanAnh = duongDanAnh, loaiKhung = loaiKhung, hieuUng = hieuUng,
+                trangThai = TrangThaiAvatar.DANG_DUNG, ngayTao = LocalDateTime.now()
+            )
+        )
+        return Kq.Ok(Unit)
+    }
+
+    override fun suaKieuAnh(idAvatar: Int, loaiKhung: String, hieuUng: String): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        val i = avatar.indexOfFirst { it.idAvatar == idAvatar }
+        if (i < 0) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy ảnh này")
+        val o = layO(avatar[i].idOThanhVien) ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
+        quyenQuanTri(o.idKhongGian)?.let { return it }
+        kiemTraKieuAnh(loaiKhung, hieuUng)?.let { return it }
+        avatar[i] = avatar[i].copy(loaiKhung = loaiKhung, hieuUng = hieuUng)
+        return Kq.Ok(Unit)
+    }
+
+    override fun dungLaiAnh(idAvatar: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        val i = avatar.indexOfFirst { it.idAvatar == idAvatar }
+        if (i < 0) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy ảnh này")
+        val chon = avatar[i]
+        val o = layO(chon.idOThanhVien) ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy thành viên này")
+        quyenQuanTri(o.idKhongGian)?.let { return it }
+        if (chon.trangThai != TrangThaiAvatar.LICH_SU) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Ảnh này đang được dùng")
+        for (j in avatar.indices) {
+            if (avatar[j].idOThanhVien == chon.idOThanhVien && avatar[j].trangThai == TrangThaiAvatar.DANG_DUNG)
+                avatar[j] = avatar[j].copy(trangThai = TrangThaiAvatar.LICH_SU)
+        }
+        avatar[i] = chon.copy(trangThai = TrangThaiAvatar.DANG_DUNG)
         return Kq.Ok(Unit)
     }
 }

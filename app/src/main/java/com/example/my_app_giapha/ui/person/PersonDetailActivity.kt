@@ -37,6 +37,10 @@ import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.example.my_app_giapha.ui.common.AnhLoader
+import com.example.my_app_giapha.model.KhungAvatar
+import com.example.my_app_giapha.model.HieuUngAvatar
+import com.example.my_app_giapha.ui.common.hienCuaO
 
 /**
  * GD-08 — Chi tiết Ô thành viên.
@@ -111,10 +115,12 @@ class PersonDetailActivity : AppCompatActivity() {
             b.appBar.actionContainer.removeAllViews()
         }
 
-        // ảnh đại diện (bản hardcode: chữ cái đầu)
-        b.tvAvatar.text = initialOf(o.hoTen)
-        b.tvAvatar.setBackgroundResource(if (o.conSong) R.drawable.bg_circle_green else R.drawable.bg_circle_dead)
-        b.tvAvatar.setTextColor(ContextCompat.getColor(this, if (o.conSong) R.color.brown_primary else R.color.text_hint))
+        // ảnh đại diện: ảnh thật nếu có, không thì chữ cái đầu
+        val g = ct.anhDangDung
+        b.avatarView.hien(
+            AnhLoader.tai(this, g?.duongDanAnh), initialOf(o.hoTen),
+            KhungAvatar.fromDb(g?.loaiKhung), HieuUngAvatar.fromDb(g?.hieuUng)
+        )
         b.ivCrown.visibility = if (o.laTruongToc) View.VISIBLE else View.GONE
         b.btnEditAvatar.visibility = if (quanTri) View.VISIBLE else View.GONE
 
@@ -171,6 +177,7 @@ class PersonDetailActivity : AppCompatActivity() {
         ds.forEach { n ->
             val c = ItemRelationChipBinding.inflate(layoutInflater, g.listPeople, false)
             c.tvName.text = n.hoTen
+            c.avatar.hienCuaO(n.anh, n.hoTen, n.conSong)
             c.chipRoot.alpha = if (n.conSong) 1f else 0.75f
             datNhan(c.tvTag, n.nhan, honNhan)
             c.chipRoot.setOnClickListener { Routes.moChiTietO(this, idKhongGian, n.idO) }

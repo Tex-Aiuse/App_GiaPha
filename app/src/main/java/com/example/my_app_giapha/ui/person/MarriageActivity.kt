@@ -32,6 +32,7 @@ import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.example.my_app_giapha.ui.common.hienCuaO
 
 /**
  * GD-13 — Quản lý quan hệ hôn nhân của một Ô (Admin, Quản lý).
@@ -97,7 +98,7 @@ class MarriageActivity : AppCompatActivity() {
             val c = ItemMarriageCardBinding.inflate(layoutInflater, b.listMarriages, false)
             c.tvName.text = h.hoTen
             c.tvName.setTextColor(getColor(if (h.conSong) R.color.text_primary else R.color.text_hint))
-            c.flAvatar.setBackgroundResource(if (h.conSong) R.drawable.bg_circle_green else R.drawable.bg_circle_dead)
+            c.avatar.hienCuaO(h.anh, h.hoTen, h.conSong)
             datTrangThai(c.tvStatus, h.trangThai)
 
             c.rowWedding.visibility = if (h.ngayCoi != null) View.VISIBLE else View.GONE
@@ -186,6 +187,7 @@ class MarriageActivity : AppCompatActivity() {
             setStroke(dp.toInt(), getColor(R.color.border_default))
         }
         d.tvPersonName.text = h.hoTen
+        d.avatarPerson.hienCuaO(h.anh, h.hoTen, h.conSong)
 
         var ngayCoi = h.ngayCoi
         var ngayLy = h.ngayLyHon

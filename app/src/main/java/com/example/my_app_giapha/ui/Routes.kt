@@ -18,6 +18,7 @@ import com.example.my_app_giapha.ui.person.MarriageActivity
 import com.example.my_app_giapha.ui.person.BioActivity
 import com.example.my_app_giapha.ui.person.BioEditActivity
 import com.example.my_app_giapha.ui.person.ThanhTuuActivity
+import com.example.my_app_giapha.ui.person.AnhDaiDienActivity
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
 
@@ -95,7 +96,11 @@ object Routes {
         )
 
     fun moAnhDaiDien(activity: Activity, idKhongGian: Int, idO: Int) =
-        activity.tam("TẠM: GD-11 Ảnh đại diện (bước 9)")
+        activity.startActivity(
+            Intent(activity, AnhDaiDienActivity::class.java)
+                .putExtra(AnhDaiDienActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+                .putExtra(AnhDaiDienActivity.EXTRA_ID_O, idO)
+        )
 
     fun moQuanHeChaMe(activity: Activity, idKhongGian: Int, idO: Int) =
         activity.startActivity(

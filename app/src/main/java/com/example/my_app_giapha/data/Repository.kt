@@ -16,7 +16,7 @@ data class DuLieuCay(
     val oThanhVien: List<OThanhVien>,
     val quanHeChaMe: List<QuanHeChaMe>,         // gồm cả dòng đang ẩn (HienThiLienKet = false)
     val honNhan: List<QHeHonNhan>,
-    val anhDangDung: Map<Int, String?>          // id Ô -> đường dẫn ảnh đang dùng
+    val anhDangDung: Map<Int, Avatar>
 )
 
 /** Một người liên quan trong khối "Quan hệ gia đình" của GD-08. nhan: Ruột/Nuôi/Kế hoặc trạng thái hôn nhân. */
@@ -24,7 +24,8 @@ data class NguoiLienQuan(
     val idO: Int,
     val hoTen: String,
     val nhan: String?,
-    val conSong: Boolean
+    val conSong: Boolean,
+    val anh: Avatar? = null
 )
 
 /** Dữ liệu của màn GD-08. */
@@ -33,7 +34,8 @@ data class ChiTietO(
     val toi: ThanVienTrongKGian,          // vai trò của người đang xem
     val chaMe: List<NguoiLienQuan>,
     val voChong: List<NguoiLienQuan>,
-    val con: List<NguoiLienQuan>
+    val con: List<NguoiLienQuan>,
+    val anhDangDung: Avatar? = null
 )
 
 /** Tác động của việc xóa một Ô, dùng dựng nội dung hộp cảnh báo ở GD-08. */
@@ -65,7 +67,8 @@ data class KetQuaTim(
     val idO: Int,
     val hoTen: String,
     val nguCanh: String,       // "Con của: A, B" / "Vợ/chồng của: X" / "Chưa có quan hệ"
-    val soHonNhan: Int         // số hôn nhân hiện có, để gợi ý "Thứ tự hôn nhân"
+    val soHonNhan: Int,        // số hôn nhân hiện có, để gợi ý "Thứ tự hôn nhân"
+    val anh: Avatar? = null
 )
 
 data class ChaMeChon(val idO: Int, val loai: LoaiQuanHe, val ngayXacLap: LocalDate?)
@@ -88,7 +91,9 @@ data class DongQuanHeChaMe(
     val hoTen: String,
     val conSong: Boolean,
     val loai: LoaiQuanHe,
-    val ngayXacLap: LocalDate?
+    val ngayXacLap: LocalDate?,
+    val anh: Avatar? = null
+
 )
 
 /** Dữ liệu màn GD-12: cha/mẹ của Ô và con của Ô. */
@@ -106,7 +111,8 @@ data class DongHonNhan(
     val trangThai: TrangThaiHonNhan,
     val ngayCoi: LocalDate?,
     val ngayLyHon: LocalDate?,
-    val thuTu: Int?
+    val thuTu: Int?,
+    val anh: Avatar? = null
 )
 
 /** Dữ liệu màn GD-13, đã sắp theo thứ tự hôn nhân. */
@@ -144,6 +150,13 @@ data class DanhSachThanhTuu(
     val o: OThanhVien,
     val toi: ThanVienTrongKGian,          // vai trò của người đang xem
     val ds: List<ThanhTuu>
+)
+/** Dữ liệu màn GD-11. lichSu mới nhất lên đầu và KHÔNG chứa ảnh đang dùng. */
+data class AnhDaiDienO(
+    val o: OThanhVien,
+    val toi: ThanVienTrongKGian,
+    val dangDung: Avatar?,
+    val lichSu: List<Avatar>
 )
 /**
  * Cửa duy nhất giữa màn hình và dữ liệu. Màn hình không đọc SampleData trực tiếp.
@@ -233,4 +246,12 @@ interface Repository {
     fun suaThanhTuu(idThanhTuu: Int, ten: String, nam: Int?, moTa: String?): Kq<Unit>
     /** Admin/Quản lý. */
     fun xoaThanhTuu(idThanhTuu: Int): Kq<Unit>
+    // ---- Ảnh đại diện (GD-11). Admin/Quản lý ----
+    fun anhDaiDienCua(idO: Int): Kq<AnhDaiDienO>
+    /** Tạo ảnh mới thành "đang dùng"; ảnh đang dùng cũ chuyển sang lịch sử. */
+    fun themAnhDaiDien(idO: Int, duongDanAnh: String, loaiKhung: String, hieuUng: String): Kq<Unit>
+    /** Chỉ đổi khung/hiệu ứng, không đổi ảnh gốc. */
+    fun suaKieuAnh(idAvatar: Int, loaiKhung: String, hieuUng: String): Kq<Unit>
+    /** Đổi một ảnh lịch sử thành đang dùng; ảnh đang dùng hiện tại chuyển sang lịch sử. */
+    fun dungLaiAnh(idAvatar: Int): Kq<Unit>
 }

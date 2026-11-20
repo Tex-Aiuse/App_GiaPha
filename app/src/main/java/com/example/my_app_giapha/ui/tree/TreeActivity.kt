@@ -117,7 +117,7 @@ class TreeActivity : AppCompatActivity() {
         if (n != null) b.tvFilterInfo.text = "Đang lọc $n đời ·"
         val kq = if (moc != null && n != null) LayoutEngine.tinh(du, loc = BoLocDoi(moc, n)) else kqDay
 
-        b.viewport.datDuLieu(kq, du.oThanhVien)
+        b.viewport.datDuLieu(kq, du.oThanhVien, anh = du.anhDangDung)
         daCoCay = true
     }
 

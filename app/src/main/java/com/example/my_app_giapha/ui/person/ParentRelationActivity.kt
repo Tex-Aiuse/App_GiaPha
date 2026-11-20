@@ -32,6 +32,7 @@ import com.example.my_app_giapha.ui.common.showConfirmDialog
 import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.example.my_app_giapha.ui.common.hienCuaO
 
 /**
  * GD-12 — Quản lý quan hệ cha/mẹ–con của một Ô (Admin, Quản lý).
@@ -107,7 +108,7 @@ class ParentRelationActivity : AppCompatActivity() {
             row.divider.visibility = if (i == 0) View.GONE else View.VISIBLE
             row.tvName.text = r.hoTen
             row.tvName.setTextColor(getColor(if (r.conSong) R.color.text_primary else R.color.text_hint))
-            row.flAvatar.setBackgroundResource(if (r.conSong) R.drawable.bg_circle_green else R.drawable.bg_circle_dead)
+            row.avatar.hienCuaO(r.anh, r.hoTen, r.conSong)
             datNhan(row.tvTag, r.loai.nhan)
             row.tvDate.text = r.ngayXacLap?.let { "Ngày xác lập: ${it.format(fmt)}" } ?: ""
             row.tvDate.visibility = if (r.ngayXacLap == null) View.GONE else View.VISIBLE

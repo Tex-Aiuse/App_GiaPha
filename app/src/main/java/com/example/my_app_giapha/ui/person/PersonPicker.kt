@@ -16,6 +16,7 @@ import com.example.my_app_giapha.databinding.ViewPersonPickerBinding
 import com.example.my_app_giapha.model.LoaiQuanHe
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.example.my_app_giapha.ui.common.hienCuaO
 
 /**
  * Khối "tìm một người trong cây rồi chọn" của GD-07.
@@ -96,6 +97,7 @@ class PersonPicker(
             val r = ItemSearchResultBinding.inflate(inflater, b.resultsBox, false)
             val bat = chon?.idO == kq.idO
             r.tvName.text = kq.hoTen
+            r.avatar.hienCuaO(kq.anh, kq.hoTen)
             r.tvContext.text = kq.nguCanh
             r.ivCheck.visibility = if (bat) View.VISIBLE else View.GONE
             r.root.background = GradientDrawable().apply {

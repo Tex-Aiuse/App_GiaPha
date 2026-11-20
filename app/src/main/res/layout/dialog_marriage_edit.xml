@@ -34,18 +34,10 @@
                 android:orientation="horizontal"
                 android:padding="12dp">
 
-                <FrameLayout
+                <com.example.my_app_giapha.ui.common.AvatarView
+                    android:id="@+id/avatarPerson"
                     android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_circle_green">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:importantForAccessibility="no"
-                        android:src="@drawable/ic_person" />
-                </FrameLayout>
+                    android:layout_height="36dp" />
 
                 <TextView
                     android:id="@+id/tvPersonName"

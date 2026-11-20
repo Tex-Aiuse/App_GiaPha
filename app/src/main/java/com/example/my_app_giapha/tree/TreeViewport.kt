@@ -14,6 +14,7 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import com.example.my_app_giapha.model.Avatar
 
 /**
  * Khung xem cây của GD-06 và GD-24: bọc một TreeView và xử lý cử chỉ.
@@ -106,8 +107,11 @@ class TreeViewport @JvmOverloads constructor(
     // ---- dữ liệu ----
 
     /** Đặt cây mới. Vị trí cuộn và mức zoom hiện tại được giữ (chỉ kẹp lại trong phạm vi mới). */
-    fun datDuLieu(kq: KetQuaBoCuc, o: List<OThanhVien>, cauHinh: CauHinhCay = CauHinhCay()) {
-        cay.datDuLieu(kq, o, cauHinh)
+    fun datDuLieu(
+        kq: KetQuaBoCuc, o: List<OThanhVien>, cauHinh: CauHinhCay = CauHinhCay(),
+        anh: Map<Int, Avatar> = emptyMap()
+    ) {
+        cay.datDuLieu(kq, o, cauHinh, anh)
         cuonToi(scrollX, scrollY)
     }
 
