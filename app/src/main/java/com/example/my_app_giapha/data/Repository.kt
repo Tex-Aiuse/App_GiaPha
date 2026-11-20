@@ -147,6 +147,14 @@ data class DanhSachThanhVien(
     val toi: ThanVienTrongKGian,
     val thanhVien: List<DongThanhVien>
 )
+/** Kết quả tìm tài khoản theo SĐT để mời vào một không gian (GD-15). */
+data class KetQuaTimSdt(
+    val idTaiKhoan: Int,
+    val tenHienThi: String,
+    val sdt: String,
+    val vaiTroHienTai: VaiTro?,    // khác null: đã có vai trò trong không gian này (đang hoạt động hoặc bị chặn)
+    val biChan: Boolean
+)
 /** Nội dung tiểu sử đang có. Ô chưa có tiểu sử thì tieuSu = null. */
 data class TieuSuO(
     val noiDung: String,
@@ -273,4 +281,9 @@ interface Repository {
     // ---- Danh sách thành viên (GD-14) ----
     /** Mọi vai trò trong không gian đều xem được. Không gồm người đã rời; người bị chặn xếp cuối. */
     fun danhSachThanhVien(idKhongGian: Int): Kq<DanhSachThanhVien>
+    // ---- Mời thành viên trực tiếp (GD-15) ----
+    /** Admin/Quản lý. Tìm chính xác theo SĐT trên toàn hệ thống. Ok(null) = không có tài khoản nào. */
+    fun timTaiKhoanTheoSdt(idKhongGian: Int, sdt: String): Kq<KetQuaTimSdt?>
+    /** Admin/Quản lý. Thêm một tài khoản đã có vào không gian với vai trò Thành viên hờ. */
+    fun moiTrucTiep(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit>
 }

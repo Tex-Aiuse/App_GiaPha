@@ -983,4 +983,60 @@ class FakeRepository : Repository {
             .sortedWith(compareBy({ it.biChan }, { it.vaiTro.ordinal }, { it.tenHienThi }))
         return Kq.Ok(DanhSachThanhVien(kg, toi, ds))
     }
+    // ---------------- Mời thành viên trực tiếp (GD-15) ----------------
+
+    private fun quyenMoi(idKhongGian: Int): Kq.Loi? =
+        if (vaiTroCuaToi(idKhongGian)?.vaiTro?.laQuanTri == true) null
+        else loi(LoiApp.KHONG_CO_QUYEN, "Bạn không có quyền mời thành viên")
+
+    override fun timTaiKhoanTheoSdt(idKhongGian: Int, sdt: String): Kq<KetQuaTimSdt?> {
+        if (giaLapLoi) return matKetNoi()
+        quyenMoi(idKhongGian)?.let { return it }
+        if (!hopLeSdt(sdt)) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Số điện thoại không hợp lệ")
+
+        val tk = taiKhoan.firstOrNull { it.sdt == sdt } ?: return Kq.Ok(null)
+        val dong = thanVien.firstOrNull { it.idKhongGian == idKhongGian && it.idTaiKhoan == tk.idTaiKhoan }
+        // Người đã rời không tính là đang có vai trò: mời lại được.
+        val dangCo = dong?.takeIf { it.trangThai != TrangThaiThanhVien.DA_ROI }
+        // Tài khoản bị AdminApp khóa mà chưa ở trong không gian này: coi như không tìm thấy.
+        if (dangCo == null && tk.trangThai == TrangThaiTaiKhoan.DA_KHOA) return Kq.Ok(null)
+        return Kq.Ok(
+            KetQuaTimSdt(
+                idTaiKhoan = tk.idTaiKhoan,
+                tenHienThi = tk.tenHienThi,
+                sdt = tk.sdt,
+                vaiTroHienTai = dangCo?.vaiTro,
+                biChan = dangCo?.trangThai == TrangThaiThanhVien.BI_CAM
+            )
+        )
+    }
+
+    override fun moiTrucTiep(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        quyenMoi(idKhongGian)?.let { return it }
+        val tk = taiKhoan.firstOrNull { it.idTaiKhoan == idTaiKhoan && it.trangThai == TrangThaiTaiKhoan.HOAT_DONG }
+            ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy tài khoản này")
+
+        val i = thanVien.indexOfFirst { it.idKhongGian == idKhongGian && it.idTaiKhoan == tk.idTaiKhoan }
+        if (i >= 0) {
+            val cu = thanVien[i]
+            if (cu.trangThai != TrangThaiThanhVien.DA_ROI)
+                return loi(LoiApp.DA_TON_TAI, "Người này đã tham gia Không gian")
+            // Đã rời: bảng có UNIQUE (không gian, tài khoản) nên cập nhật dòng cũ thành Thành viên hờ.
+            thanVien[i] = cu.copy(
+                vaiTro = VaiTro.THANH_VIEN_HO, idOThanhVien = null,
+                trangThai = TrangThaiThanhVien.HOAT_DONG, ngayThamGia = LocalDateTime.now(),
+                ngayCam = null, lyDoCam = null, idNguoiCam = null
+            )
+        } else {
+            thanVien.add(
+                ThanVienTrongKGian(
+                    idThanVienTrongKGian = (thanVien.maxOfOrNull { it.idThanVienTrongKGian } ?: 0) + 1,
+                    idKhongGian = idKhongGian, idTaiKhoan = tk.idTaiKhoan,
+                    vaiTro = VaiTro.THANH_VIEN_HO, ngayThamGia = LocalDateTime.now()
+                )
+            )
+        }
+        return Kq.Ok(Unit)
+    }
 }
