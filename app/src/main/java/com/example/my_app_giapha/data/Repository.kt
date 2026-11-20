@@ -147,6 +147,13 @@ data class DanhSachThanhVien(
     val toi: ThanVienTrongKGian,
     val thanhVien: List<DongThanhVien>
 )
+/** Một trang tài khoản toàn hệ thống (GD-21). trang đã được ép vào khoảng hợp lệ. */
+data class TrangTaiKhoan(
+    val ds: List<TaiKhoan>,
+    val trang: Int,
+    val tongTrang: Int,
+    val tongSo: Int
+)
 /** Kết quả tìm tài khoản theo SĐT để mời vào một không gian (GD-15). */
 data class KetQuaTimSdt(
     val idTaiKhoan: Int,
@@ -314,4 +321,7 @@ interface Repository {
     fun chanThanhVien(idKhongGian: Int, idTaiKhoan: Int, lyDo: String?): Kq<Unit>
     /** Gỡ chặn: về Hoạt động, xóa ngày chặn, lý do, người chặn. */
     fun goChan(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit>
+    // ---- AdminApp: tài khoản toàn hệ thống (GD-21). Chỉ LoaiTaiKhoan = AdminApp ----
+    /** Tìm theo số điện thoại (khớp một phần), mới tạo xếp trước, 20 dòng mỗi trang, trang đánh số từ 1. */
+    fun danhSachTaiKhoan(tuKhoaSdt: String, trang: Int): Kq<TrangTaiKhoan>
 }

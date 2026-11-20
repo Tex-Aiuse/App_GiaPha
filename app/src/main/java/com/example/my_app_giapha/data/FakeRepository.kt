@@ -1228,4 +1228,23 @@ class FakeRepository : Repository {
         thanVien[i] = t.copy(trangThai = TrangThaiThanhVien.HOAT_DONG, ngayCam = null, lyDoCam = null, idNguoiCam = null)
         return Kq.Ok(Unit)
     }
+    // ---------------- AdminApp (GD-21 → GD-25) ----------------
+
+    /** Chỉ tài khoản AdminApp. Dùng lại cho các hàm AdminApp ở 11b đến 11e. */
+    private fun quyenAdminApp(): Kq.Loi? =
+        if (nhanDang()?.loaiTaiKhoan == LoaiTaiKhoan.ADMIN_APP) null
+        else loi(LoiApp.KHONG_CO_QUYEN, "Chỉ quản trị hệ thống mới có quyền thực hiện thao tác này")
+
+    override fun danhSachTaiKhoan(tuKhoaSdt: String, trang: Int): Kq<TrangTaiKhoan> {
+        if (giaLapLoi) return matKetNoi()
+        quyenAdminApp()?.let { return it }
+        val so = tuKhoaSdt.filter { it.isDigit() }
+        val loc = taiKhoan
+            .filter { so.isEmpty() || it.sdt.contains(so) }
+            .sortedWith(compareByDescending<TaiKhoan> { it.ngayTao }.thenByDescending { it.idTaiKhoan })
+        val coSo = 20
+        val tongTrang = maxOf(1, (loc.size + coSo - 1) / coSo)
+        val t = trang.coerceIn(1, tongTrang)
+        return Kq.Ok(TrangTaiKhoan(loc.drop((t - 1) * coSo).take(coSo), t, tongTrang, loc.size))
+    }
 }

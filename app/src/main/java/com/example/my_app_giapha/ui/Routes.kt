@@ -25,6 +25,7 @@ import com.example.my_app_giapha.ui.space.InviteCodeActivity
 import com.example.my_app_giapha.ui.space.GanOActivity
 import com.example.my_app_giapha.ui.space.CaiDatKhongGianActivity
 import com.example.my_app_giapha.ui.space.QuanLyVaiTroActivity
+import com.example.my_app_giapha.ui.admin.TaiKhoanHeThongActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -38,7 +39,7 @@ object Routes {
 
     fun sauDangNhap(activity: Activity, tk: TaiKhoan) {
         if (tk.loaiTaiKhoan == LoaiTaiKhoan.ADMIN_APP) {
-            activity.tam("TẠM: AdminApp → GD-21 (bước 11)")
+            activity.moMoi(TaiKhoanHeThongActivity::class.java)
         } else {
             activity.moMoi(SpaceListActivity::class.java)
         }
@@ -181,4 +182,13 @@ object Routes {
 
     fun moNhapMa(activity: Activity) =
         activity.startActivity(Intent(activity, JoinCodeActivity::class.java))
+
+    // ---- AdminApp ----
+    fun moDanhSachTaiKhoanHeThong(activity: Activity) = activity.moMoi(TaiKhoanHeThongActivity::class.java)
+
+    fun moDanhSachKhongGianHeThong(activity: Activity) =
+        activity.tam("TẠM: GD-23 Danh sách không gian (bước 11c)")
+
+    fun moChiTietTaiKhoan(activity: Activity, idTaiKhoan: Int) =
+        activity.tam("TẠM: GD-22 Chi tiết tài khoản (bước 11b)")
 }
