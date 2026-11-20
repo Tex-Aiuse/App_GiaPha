@@ -286,4 +286,7 @@ interface Repository {
     fun timTaiKhoanTheoSdt(idKhongGian: Int, sdt: String): Kq<KetQuaTimSdt?>
     /** Admin/Quản lý. Thêm một tài khoản đã có vào không gian với vai trò Thành viên hờ. */
     fun moiTrucTiep(idKhongGian: Int, idTaiKhoan: Int): Kq<Unit>
+    // ---- Mã mời (GD-16) ----
+    /** Admin, Quản lý, Thành viên, Thành viên hờ (không phải Khách tạm). Mã dùng một lần, hiệu lực 5 phút. */
+    fun taoMaMoi(idKhongGian: Int): Kq<MaCode>
 }

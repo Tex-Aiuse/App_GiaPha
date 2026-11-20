@@ -1039,4 +1039,28 @@ class FakeRepository : Repository {
         }
         return Kq.Ok(Unit)
     }
+    // ---------------- Mã mời (GD-16) ----------------
+
+    override fun taoMaMoi(idKhongGian: Int): Kq<MaCode> {
+        if (giaLapLoi) return matKetNoi()
+        val toi = vaiTroCuaToi(idKhongGian)
+            ?: return loi(LoiApp.KHONG_CO_QUYEN, "Bạn không có quyền xem không gian này")
+        if (toi.vaiTro == VaiTro.KHACH_TAM)
+            return loi(LoiApp.KHONG_CO_QUYEN, "Khách tạm không tạo được mã mời")
+
+        // 8 ký tự, bỏ I, O, 0, 1 cho dễ đọc, như mã mẫu "KT7H29QX"
+        val bang = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        var ma: String
+        do {
+            ma = (1..8).map { bang.random() }.joinToString("")
+        } while (maCode.any { it.ma == ma })
+
+        val bayGio = LocalDateTime.now()
+        val moi = MaCode(
+            ma = ma, idKhongGian = idKhongGian, idNguoiTao = toi.idTaiKhoan,
+            ngayTao = bayGio, ngayHetHan = bayGio.plusMinutes(5)
+        )
+        maCode.add(moi)
+        return Kq.Ok(moi)
+    }
 }

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_screen"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/appBar"
+        layout="@layout/view_app_bar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:paddingTop="64dp">
+
+                <!-- Trước khi tạo mã -->
+                <LinearLayout
+                    android:id="@+id/groupBefore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="140dp"
+                        android:layout_height="140dp"
+                        android:background="@drawable/bg_circle_green">
+
+                        <ImageView
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_gravity="center"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_ticket_lock"
+                            android:tint="@color/brown_primary" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/be_vietnam_pro"
+                        android:gravity="center"
+                        android:text="Tạo mã để chia sẻ cho khách xem tạm cây gia phả này. Mã có hiệu lực 5 phút và chỉ dùng được 1 lần."
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCreate"
+                        style="@style/Widget.GiaPha.Button.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="24dp"
+                        android:text="Tạo mã mới" />
+                </LinearLayout>
+
+                <!-- Sau khi tạo mã: thẻ mã + (đang đếm ngược | đã hết hạn) -->
+                <LinearLayout
+                    android:id="@+id/groupResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="24dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/be_vietnam_pro"
+                            android:text="Mã truy cập của bạn"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/be_vietnam_pro_bold"
+                            android:letterSpacing="0.15"
+                            android:textColor="@color/text_primary"
+                            android:textSize="32sp" />
+                    </LinearLayout>
+
+                    <!-- Đang đếm ngược -->
+                    <LinearLayout
+                        android:id="@+id/blockActive"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="160dp"
+                            android:layout_height="160dp">
+
+                            <com.example.my_app_giapha.ui.common.CountdownRingView
+                                android:id="@+id/ring"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center_horizontal"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/be_vietnam_pro_bold"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="32sp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/be_vietnam_pro"
+                                    android:text="còn lại"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                        </FrameLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCopy"
+                            style="@style/Widget.GiaPha.Button.Primary"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="24dp"
+                            android:text="Sao chép mã"
+                            app:icon="@drawable/ic_content_copy"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/white" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnShare"
+                            style="@style/Widget.GiaPha.Button.Outlined"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="12dp"
+                            android:text="Chia sẻ"
+                            app:icon="@drawable/ic_share"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/brown_primary" />
+                    </LinearLayout>
+
+                    <!-- Đã hết hạn -->
+                    <LinearLayout
+                        android:id="@+id/blockExpired"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="160dp"
+                            android:layout_height="160dp">
+
+                            <com.example.my_app_giapha.ui.common.CountdownRingView
+                                android:id="@+id/ringExpired"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent" />
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_clock_off" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:fontFamily="@font/be_vietnam_pro_semibold"
+                            android:text="Mã đã hết hạn"
+                            android:textColor="@color/danger"
+                            android:textSize="15sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCreateAgain"
+                            style="@style/Widget.GiaPha.Button.Primary"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:layout_marginTop="24dp"
+                            android:text="Tạo mã mới" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <com.example.my_app_giapha.ui.common.StateView
+            android:id="@+id/stateView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+</LinearLayout>

@@ -21,6 +21,7 @@ import com.example.my_app_giapha.ui.person.ThanhTuuActivity
 import com.example.my_app_giapha.ui.person.AnhDaiDienActivity
 import com.example.my_app_giapha.ui.space.MemberListActivity
 import com.example.my_app_giapha.ui.space.InviteMemberActivity
+import com.example.my_app_giapha.ui.space.InviteCodeActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -142,7 +143,10 @@ object Routes {
         activity.tam("TẠM: GD-17 Gán Ô cho tài khoản #$idTaiKhoan")
 
     fun moMaMoi(activity: Activity, idKhongGian: Int) =
-        activity.tam("TẠM: GD-16 Mã mời")
+        activity.startActivity(
+            Intent(activity, InviteCodeActivity::class.java)
+                .putExtra(InviteCodeActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+        )
 
     fun moCaiDatKhongGian(activity: Activity, idKhongGian: Int) =
         activity.tam("TẠM: GD-18 Cài đặt Không gian")
