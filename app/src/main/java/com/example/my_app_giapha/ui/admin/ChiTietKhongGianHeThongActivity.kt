@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter
 /**
  * GD-24 — Chi tiết không gian (AdminApp): xem thông tin, danh sách thành viên, cây gia phả (chỉ xem).
  * Không có nút nào sửa vai trò, chặn thành viên hay đổi cây: đó là việc của Admin trong chính không gian.
- * Duy nhất một hành động: "Xóa không gian này" (sang GD-25, làm ở bước 11e).
+ * Duy nhất một hành động: "Xóa không gian này" (sang GD-25).
  * Tải lại mỗi lần hiện lại; trạng thái mở rộng danh sách thành viên được giữ khi xoay màn hình.
  */
 class ChiTietKhongGianHeThongActivity : AppCompatActivity() {
@@ -56,7 +56,7 @@ class ChiTietKhongGianHeThongActivity : AppCompatActivity() {
             duHienTai?.let { veDanhSachThanhVien(it) }
         }
         b.btnDelete.setOnClickListener {
-            duHienTai?.let { Routes.moXoaKhongGianHeThong(this, it.khongGian.idKhongGian, it.khongGian.tenKhongGian) }
+            duHienTai?.let { Routes.moXoaKhongGianHeThong(this, it.khongGian.idKhongGian, it.khongGian.tenKhongGian, it.soThanhVien, it.soO) }
         }
     }
 

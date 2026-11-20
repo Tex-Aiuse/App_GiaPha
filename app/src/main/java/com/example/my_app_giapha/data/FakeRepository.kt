@@ -1160,11 +1160,9 @@ class FakeRepository : Repository {
         return Kq.Ok(Unit)
     }
 
-    override fun xoaKhongGian(idKhongGian: Int): Kq<Unit> {
-        if (giaLapLoi) return matKetNoi()
-        quyenCaiDat(idKhongGian)?.let { return it }
-        if (khongGian.none { it.idKhongGian == idKhongGian }) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
-        // Thứ tự như trong SQL: dữ liệu con trước, không gian sau cùng.
+    /** Xóa dữ liệu một không gian, dùng chung cho Admin xóa (GD-18) và AdminApp xóa (GD-25). Thứ tự như trong SQL. */
+    private fun donDuLieuKhongGian(idKhongGian: Int) {
+        // Dữ liệu con trước, không gian sau cùng.
         val cacO = oThanhVien.filter { it.idKhongGian == idKhongGian }.map { it.idOThanhVien }.toSet()
         val cacCD = cuocDoi.filter { it.idOThanhVien in cacO }.map { it.idCuocDoi }.toSet()
         binhLuan.removeAll { it.idCuocDoi in cacCD }
@@ -1177,6 +1175,13 @@ class FakeRepository : Repository {
         maCode.removeAll { it.idKhongGian == idKhongGian }
         thanVien.removeAll { it.idKhongGian == idKhongGian }
         khongGian.removeAll { it.idKhongGian == idKhongGian }
+    }
+
+    override fun xoaKhongGian(idKhongGian: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        quyenCaiDat(idKhongGian)?.let { return it }
+        if (khongGian.none { it.idKhongGian == idKhongGian }) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        donDuLieuKhongGian(idKhongGian)
         return Kq.Ok(Unit)
     }
     // ---------------- Quản lý vai trò và chặn (GD-19) ----------------
@@ -1331,6 +1336,15 @@ class FakeRepository : Repository {
                 thanhVien = ds
             )
         )
+    }
+
+    override fun xoaKhongGianHeThong(idKhongGian: Int, lyDo: String): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        quyenAdminApp()?.let { return it }
+        if (lyDo.isBlank()) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Vui lòng nhập lý do xóa")
+        if (khongGian.none { it.idKhongGian == idKhongGian }) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        donDuLieuKhongGian(idKhongGian)   // lý do chỉ để kiểm tra, bản 1.0 không lưu
+        return Kq.Ok(Unit)
     }
 
     override fun duLieuCayChoAdminApp(idKhongGian: Int): Kq<DuLieuCay> {

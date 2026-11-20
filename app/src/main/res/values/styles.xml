@@ -91,4 +91,26 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/brown_primary</item>
     </style>
+
+    <!-- Dòng gạch đầu ở thẻ tóm tắt GD-25 -->
+    <style name="Widget.GiaPha.XoaDong" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <style name="Widget.GiaPha.XoaCham" parent="">
+        <item name="android:layout_width">6dp</item>
+        <item name="android:layout_height">6dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:background">@drawable/bg_circle_danger</item>
+    </style>
+    <style name="Widget.GiaPha.XoaChu" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:fontFamily">@font/be_vietnam_pro</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>

@@ -18,4 +18,6 @@
     <color name="gold">#C9A24B</color>
     <color name="white">#FFFFFF</color>
     <color name="green_band">#DCEBD2</color>
+    <color name="danger_disabled">#E0A8A0</color>
+    <color name="scrim_cream">#B3FFF8F6</color>
 </resources>

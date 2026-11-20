@@ -380,6 +380,11 @@ interface Repository {
     fun danhSachKhongGianHeThong(loc: BoLocKhongGian, trang: Int): Kq<TrangKhongGianHeThong>
     // ---- AdminApp: chi tiết không gian (GD-24). Chỉ xem ----
     fun chiTietKhongGianHeThong(idKhongGian: Int): Kq<ChiTietKhongGianHeThong>
+    /**
+     * Xóa vĩnh viễn một không gian vi phạm (GD-25). Chỉ AdminApp. lyDo bắt buộc (trống: lỗi) nhưng bản 1.0 KHÔNG lưu,
+     * vì chưa có bảng nhật ký. Dọn dữ liệu cùng thứ tự với xoaKhongGian; lỗi giữa chừng thì không thay đổi gì.
+     */
+    fun xoaKhongGianHeThong(idKhongGian: Int, lyDo: String): Kq<Unit>
     /** Dữ liệu cây để xem chỉ đọc; DuLieuCay.toi là bản ghi giả (Khách tạm, không có Ô). */
     fun duLieuCayChoAdminApp(idKhongGian: Int): Kq<DuLieuCay>
 }

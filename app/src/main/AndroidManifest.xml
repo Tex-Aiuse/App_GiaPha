@@ -125,6 +125,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.admin.XoaKhongGianHeThongActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

@@ -28,6 +28,7 @@ import com.example.my_app_giapha.ui.space.QuanLyVaiTroActivity
 import com.example.my_app_giapha.ui.admin.ChiTietTaiKhoanActivity
 import com.example.my_app_giapha.ui.admin.AdminHomeActivity
 import com.example.my_app_giapha.ui.admin.ChiTietKhongGianHeThongActivity
+import com.example.my_app_giapha.ui.admin.XoaKhongGianHeThongActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -217,6 +218,13 @@ object Routes {
                 .putExtra(TreeActivity.EXTRA_CHI_XEM, true)
         )
 
-    fun moXoaKhongGianHeThong(activity: Activity, idKhongGian: Int, tenKhongGian: String) =
-        activity.tam("TẠM: GD-25 Xác nhận xóa \"$tenKhongGian\" (bước 11e)")
+    /** GD-24 → GD-25. Số liệu lấy từ GD-24 (đã có sẵn), màn xác nhận không tải lại. */
+    fun moXoaKhongGianHeThong(activity: Activity, idKhongGian: Int, tenKhongGian: String, soThanhVien: Int, soO: Int) =
+        activity.startActivity(
+            Intent(activity, XoaKhongGianHeThongActivity::class.java)
+                .putExtra(XoaKhongGianHeThongActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+                .putExtra(XoaKhongGianHeThongActivity.EXTRA_TEN, tenKhongGian)
+                .putExtra(XoaKhongGianHeThongActivity.EXTRA_SO_THANH_VIEN, soThanhVien)
+                .putExtra(XoaKhongGianHeThongActivity.EXTRA_SO_O, soO)
+        )
 }
