@@ -46,11 +46,13 @@ class TreeActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_ID_KHONG_GIAN = "idKhongGian"
+        const val EXTRA_CHI_XEM = "chiXem"
     }
 
     private lateinit var b: ActivityTreeBinding
     private val repo get() = Services.repository
     private var idKhongGian = 0
+    private var chiXem = false
     private var vaiTro: VaiTro? = null
     private var daCoCay = false
     private var duHienTai: DuLieuCay? = null
@@ -63,12 +65,16 @@ class TreeActivity : AppCompatActivity() {
         b = ActivityTreeBinding.inflate(layoutInflater)
         setContentView(b.root)
         idKhongGian = intent.getIntExtra(EXTRA_ID_KHONG_GIAN, 0)
+        chiXem = intent.getBooleanExtra(EXTRA_CHI_XEM, false)
 
         b.appBar.setup(this, "")
         b.fab.applyBottomMarginInset()
         b.fab.setOnClickListener { Routes.moThemO(this, idKhongGian) }
-        b.viewport.khiChamThe = { idO -> Routes.moChiTietO(this, idKhongGian, idO) }
-        b.viewport.khiBamAn = { nut -> anQuanHe(nut) }
+        b.bandReadOnly.visibility = if (chiXem) View.VISIBLE else View.GONE
+        if (!chiXem) {
+            b.viewport.khiChamThe = { idO -> Routes.moChiTietO(this, idKhongGian, idO) }
+            b.viewport.khiBamAn = { nut -> anQuanHe(nut) }
+        }
         kho = LocDoiStore(this)
         b.tvFilterClear.setOnClickListener { datLoc(null) }
     }
@@ -80,7 +86,8 @@ class TreeActivity : AppCompatActivity() {
 
     private fun tai() {
         if (!daCoCay) b.stateView.showLoading()
-        when (val r = repo.duLieuCay(idKhongGian)) {
+        val kq = if (chiXem) repo.duLieuCayChoAdminApp(idKhongGian) else repo.duLieuCay(idKhongGian)
+        when (val r = kq) {
             is Kq.Loi -> {
                 daCoCay = false
                 b.fab.visibility = View.GONE
@@ -93,10 +100,15 @@ class TreeActivity : AppCompatActivity() {
     private fun hienCay(du: DuLieuCay) {
         vaiTro = du.toi.vaiTro
         duHienTai = du
-        b.viewport.choPhepAn = du.toi.vaiTro.laQuanTri
-        b.appBar.tvTitle.text = du.khongGian.tenKhongGian
-        datNutBenPhai(du.khongGian.cheDoRiengTu)
-        b.fab.visibility = if (du.toi.vaiTro.laQuanTri) View.VISIBLE else View.GONE
+        b.viewport.choPhepAn = !chiXem && du.toi.vaiTro.laQuanTri
+        if (chiXem) {
+            b.appBar.tvTitle.text = "Cây gia phả — ${du.khongGian.tenKhongGian}"
+            b.appBar.actionContainer.removeAllViews()
+        } else {
+            b.appBar.tvTitle.text = du.khongGian.tenKhongGian
+            datNutBenPhai(du.khongGian.cheDoRiengTu)
+        }
+        b.fab.visibility = if (!chiXem && du.toi.vaiTro.laQuanTri) View.VISIBLE else View.GONE
 
         if (du.oThanhVien.isEmpty()) {
             b.stateView.showEmpty(

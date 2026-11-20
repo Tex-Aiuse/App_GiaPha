@@ -191,6 +191,14 @@ data class ChiTietTaiKhoan(
     val taiKhoan: TaiKhoan,
     val khongGian: List<KhongGianCuaTaiKhoan>
 )
+/** Dữ liệu GD-24. thanhVien là danh sách đầy đủ; màn hình tự cắt 5 dòng đầu khi thu gọn. */
+data class ChiTietKhongGianHeThong(
+    val khongGian: KhongGian,
+    val nguoiTao: TaiKhoan?,
+    val soThanhVien: Int,
+    val soO: Int,
+    val thanhVien: List<DongThanhVien>
+)
 /** Kết quả tìm tài khoản theo SĐT để mời vào một không gian (GD-15). */
 data class KetQuaTimSdt(
     val idTaiKhoan: Int,
@@ -370,4 +378,8 @@ interface Repository {
     // ---- AdminApp: không gian toàn hệ thống (GD-23). Chỉ LoaiTaiKhoan = AdminApp ----
     /** Lọc theo BoLocKhongGian (các điều kiện cộng lại), mới tạo xếp trước, 20 dòng mỗi trang. tuNgay sau denNgay: lỗi. */
     fun danhSachKhongGianHeThong(loc: BoLocKhongGian, trang: Int): Kq<TrangKhongGianHeThong>
+    // ---- AdminApp: chi tiết không gian (GD-24). Chỉ xem ----
+    fun chiTietKhongGianHeThong(idKhongGian: Int): Kq<ChiTietKhongGianHeThong>
+    /** Dữ liệu cây để xem chỉ đọc; DuLieuCay.toi là bản ghi giả (Khách tạm, không có Ô). */
+    fun duLieuCayChoAdminApp(idKhongGian: Int): Kq<DuLieuCay>
 }

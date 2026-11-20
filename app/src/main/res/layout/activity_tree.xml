@@ -10,6 +10,36 @@
         android:id="@+id/appBar"
         layout="@layout/view_app_bar" />
 
+    <!-- Dải "Chế độ chỉ xem": chỉ hiện khi AdminApp xem cây từ GD-24 -->
+    <LinearLayout
+        android:id="@+id/bandReadOnly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/green_band"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_visibility" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/be_vietnam_pro_medium"
+            android:text="Chế độ chỉ xem"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
     <!-- Dải "Đang lọc N đời · Bỏ lọc": chỉ hiện khi đang lọc số đời -->
     <LinearLayout
         android:id="@+id/bandFilter"

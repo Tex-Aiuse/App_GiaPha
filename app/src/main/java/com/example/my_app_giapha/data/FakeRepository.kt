@@ -178,18 +178,20 @@ class FakeRepository : Repository {
         if (kg.cheDoRiengTu && toi.vaiTro == VaiTro.KHACH_TAM)
             return loi(LoiApp.KHONG_GIAN_RIENG_TU, "Không gian này đang ở chế độ riêng tư")
 
-        val cacO = oThanhVien.filter { it.idKhongGian == idKhongGian }
-        val ids = cacO.map { it.idOThanhVien }.toSet()
-        return Kq.Ok(
-            DuLieuCay(
-                khongGian = kg, toi = toi, oThanhVien = cacO,
-                quanHeChaMe = quanHeChaMe.filter { it.idCon in ids && it.idPhuHuynh in ids },
-                honNhan = honNhan.filter { it.idChong in ids && it.idVo in ids },
-                anhDangDung = avatar
-                    .filter { it.idOThanhVien in ids && it.trangThai == TrangThaiAvatar.DANG_DUNG }
-                    .associateBy { it.idOThanhVien }
+        return Kq.Ok(dungDuLieuCay(kg, toi))
+    }
 
-            )
+    /** Dùng chung cho duLieuCay (GD-06) và duLieuCayChoAdminApp (GD-24). */
+    private fun dungDuLieuCay(kg: KhongGian, toi: ThanVienTrongKGian): DuLieuCay {
+        val cacO = oThanhVien.filter { it.idKhongGian == kg.idKhongGian }
+        val ids = cacO.map { it.idOThanhVien }.toSet()
+        return DuLieuCay(
+            khongGian = kg, toi = toi, oThanhVien = cacO,
+            quanHeChaMe = quanHeChaMe.filter { it.idCon in ids && it.idPhuHuynh in ids },
+            honNhan = honNhan.filter { it.idChong in ids && it.idVo in ids },
+            anhDangDung = avatar
+                .filter { it.idOThanhVien in ids && it.trangThai == TrangThaiAvatar.DANG_DUNG }
+                .associateBy { it.idOThanhVien }
         )
     }
 
@@ -962,7 +964,12 @@ class FakeRepository : Repository {
         if (kg.cheDoRiengTu && toi.vaiTro == VaiTro.KHACH_TAM)
             return loi(LoiApp.KHONG_GIAN_RIENG_TU, "Không gian này đang ở chế độ riêng tư")
 
-        val ds = thanVien
+        return Kq.Ok(DanhSachThanhVien(kg, toi, dongThanhVienCua(idKhongGian)))
+    }
+
+    /** Không gồm người đã rời; người bị chặn xếp cuối. Dùng chung cho GD-14 và GD-24. */
+    private fun dongThanhVienCua(idKhongGian: Int): List<DongThanhVien> =
+        thanVien
             .filter { it.idKhongGian == idKhongGian && it.trangThai != TrangThaiThanhVien.DA_ROI }
             .map { m ->
                 val o = m.idOThanhVien?.let { layO(it) }
@@ -981,8 +988,6 @@ class FakeRepository : Repository {
                 )
             }
             .sortedWith(compareBy({ it.biChan }, { it.vaiTro.ordinal }, { it.tenHienThi }))
-        return Kq.Ok(DanhSachThanhVien(kg, toi, ds))
-    }
     // ---------------- Mời thành viên trực tiếp (GD-15) ----------------
 
     private fun quyenMoi(idKhongGian: Int): Kq.Loi? =
@@ -1308,4 +1313,37 @@ class FakeRepository : Repository {
 
     override fun goCamTaiKhoan(idTaiKhoan: Int): Kq<Unit> =
         doiTrangThaiTaiKhoan(idTaiKhoan, TrangThaiTaiKhoan.DA_KHOA, TrangThaiTaiKhoan.HOAT_DONG, "Tài khoản này không bị cấm")
+
+    // ---------------- AdminApp: chi tiết không gian (GD-24) ----------------
+
+    override fun chiTietKhongGianHeThong(idKhongGian: Int): Kq<ChiTietKhongGianHeThong> {
+        if (giaLapLoi) return matKetNoi()
+        quyenAdminApp()?.let { return it }
+        val kg = khongGian.firstOrNull { it.idKhongGian == idKhongGian }
+            ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        val ds = dongThanhVienCua(idKhongGian)
+        return Kq.Ok(
+            ChiTietKhongGianHeThong(
+                khongGian = kg,
+                nguoiTao = taiKhoan.firstOrNull { it.idTaiKhoan == kg.idNguoiTao },
+                soThanhVien = ds.size,
+                soO = oThanhVien.count { it.idKhongGian == idKhongGian },
+                thanhVien = ds
+            )
+        )
+    }
+
+    override fun duLieuCayChoAdminApp(idKhongGian: Int): Kq<DuLieuCay> {
+        if (giaLapLoi) return matKetNoi()
+        quyenAdminApp()?.let { return it }
+        val tk = nhanDang() ?: return loi(LoiApp.CHUA_DANG_NHAP, "Bạn chưa đăng nhập")
+        val kg = khongGian.firstOrNull { it.idKhongGian == idKhongGian }
+            ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        // Bản ghi giả, không thêm vào `thanVien`: Khách tạm không có Ô nên không lọc, không ẩn, không sửa được gì.
+        val toi = ThanVienTrongKGian(
+            idThanVienTrongKGian = 0, idKhongGian = idKhongGian, idTaiKhoan = tk.idTaiKhoan,
+            vaiTro = VaiTro.KHACH_TAM, idOThanhVien = null, ngayThamGia = kg.ngayTao
+        )
+        return Kq.Ok(dungDuLieuCay(kg, toi))
+    }
 }

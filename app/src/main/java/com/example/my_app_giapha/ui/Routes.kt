@@ -27,6 +27,7 @@ import com.example.my_app_giapha.ui.space.CaiDatKhongGianActivity
 import com.example.my_app_giapha.ui.space.QuanLyVaiTroActivity
 import com.example.my_app_giapha.ui.admin.ChiTietTaiKhoanActivity
 import com.example.my_app_giapha.ui.admin.AdminHomeActivity
+import com.example.my_app_giapha.ui.admin.ChiTietKhongGianHeThongActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -203,5 +204,19 @@ object Routes {
         )
 
     fun moChiTietKhongGianHeThong(activity: Activity, idKhongGian: Int) =
-        activity.tam("TẠM: GD-24 Chi tiết không gian (bước 11d)")
+        activity.startActivity(
+            Intent(activity, ChiTietKhongGianHeThongActivity::class.java)
+                .putExtra(ChiTietKhongGianHeThongActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+        )
+
+    /** GD-24 → cây gia phả chỉ xem (cùng TreeActivity). */
+    fun moCayChiXem(activity: Activity, idKhongGian: Int) =
+        activity.startActivity(
+            Intent(activity, TreeActivity::class.java)
+                .putExtra(TreeActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+                .putExtra(TreeActivity.EXTRA_CHI_XEM, true)
+        )
+
+    fun moXoaKhongGianHeThong(activity: Activity, idKhongGian: Int, tenKhongGian: String) =
+        activity.tam("TẠM: GD-25 Xác nhận xóa \"$tenKhongGian\" (bước 11e)")
 }
