@@ -20,13 +20,13 @@
 
         <TextView
             android:id="@+id/tvName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:layout_weight="1"
             android:ellipsize="end"
             android:fontFamily="@font/be_vietnam_pro_bold"
             android:maxLines="1"
-            android:maxWidth="150dp"
             android:textColor="@color/text_primary"
             android:textSize="15sp" />
 
@@ -38,11 +38,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:visibility="gone" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/tvRole"

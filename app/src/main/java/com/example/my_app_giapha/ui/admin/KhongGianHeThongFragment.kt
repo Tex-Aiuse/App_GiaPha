@@ -1,6 +1,6 @@
 package com.example.my_app_giapha.ui.admin
 
-import android.app.DatePickerDialog
+import com.example.my_app_giapha.ui.common.hienHopChonNgay
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.InsetDrawable
@@ -205,8 +205,6 @@ class KhongGianHeThongFragment : Fragment() {
     }
 
     private fun chonNgay(hienTai: LocalDate?, khiChon: (LocalDate) -> Unit) {
-        val m = hienTai ?: LocalDate.now()
-        DatePickerDialog(requireContext(), { _, y, th, ng -> khiChon(LocalDate.of(y, th + 1, ng)) },
-            m.year, m.monthValue - 1, m.dayOfMonth).show()
+        hienHopChonNgay(parentFragmentManager, hienTai, chanTuongLai = false, khiChon = khiChon)
     }
 }

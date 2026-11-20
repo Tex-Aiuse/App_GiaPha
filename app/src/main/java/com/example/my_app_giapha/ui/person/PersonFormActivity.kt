@@ -1,6 +1,6 @@
 package com.example.my_app_giapha.ui.person
 
-import android.app.DatePickerDialog
+import com.example.my_app_giapha.ui.common.hienHopChonNgay
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
@@ -232,15 +232,7 @@ class PersonFormActivity : AppCompatActivity() {
 
     /** Không cho chọn ngày ở tương lai; toiThieu (ngày sinh) chặn ngày mất sớm hơn ngày sinh. */
     private fun chonNgay(hienTai: LocalDate?, toiThieu: LocalDate?, khiChon: (LocalDate) -> Unit) {
-        val m = hienTai ?: LocalDate.now()
-        DatePickerDialog(this, { _, y, th, ng -> khiChon(LocalDate.of(y, th + 1, ng)) },
-            m.year, m.monthValue - 1, m.dayOfMonth
-        ).apply {
-            datePicker.maxDate = System.currentTimeMillis()
-            toiThieu?.let {
-                datePicker.minDate = it.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            }
-        }.show()
+        hienHopChonNgay(supportFragmentManager, hienTai, toiThieu, khiChon = khiChon)
     }
 
     /** Chọn một trong ba nút quan hệ; đổi nút thì khối tìm người làm lại từ đầu. */

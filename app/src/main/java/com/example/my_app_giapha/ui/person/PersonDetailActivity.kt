@@ -1,6 +1,6 @@
 package com.example.my_app_giapha.ui.person
 
-import android.app.DatePickerDialog
+import com.example.my_app_giapha.ui.common.hienHopChonNgay
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
@@ -167,11 +167,17 @@ class PersonDetailActivity : AppCompatActivity() {
         val g = ItemRelationGroupBinding.inflate(layoutInflater, b.relationGroups, false)
         g.tvGroup.text = ten
         if (ds.isEmpty()) {
+            // Cao 44dp và cách đáy 8dp như một thẻ người, để chữ thẳng hàng với nhãn bên trái
             g.listPeople.addView(TextView(this).apply {
                 text = "Chưa có thông tin"
                 setTextColor(ContextCompat.getColor(context, R.color.text_hint))
                 textSize = 14f
-                setPadding(0, (10 * resources.displayMetrics.density).toInt(), 0, (10 * resources.displayMetrics.density).toInt())
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.be_vietnam_pro)
+                val d = resources.displayMetrics.density
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT, (44 * d).toInt()
+                ).apply { bottomMargin = (8 * d).toInt() }
             })
         }
         ds.forEach { n ->
@@ -292,19 +298,13 @@ class PersonDetailActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).setView(d.root).create()
 
         d.fieldDate.setOnClickListener {
-            val m = chon ?: LocalDate.now()
-            DatePickerDialog(this, { _, y, th, ng ->
-                chon = LocalDate.of(y, th + 1, ng)
-                d.tvDate.text = chon!!.format(fmt)
+            hienHopChonNgay(supportFragmentManager, chon, o.ngaySinh) { n ->
+                chon = n
+                d.tvDate.text = n.format(fmt)
                 d.tvDate.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
                 d.tvError.visibility = View.GONE
                 d.btnConfirm.isEnabled = true
-            }, m.year, m.monthValue - 1, m.dayOfMonth).apply {
-                datePicker.maxDate = System.currentTimeMillis()
-                o.ngaySinh?.let {
-                    datePicker.minDate = it.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                }
-            }.show()
+            }
         }
         d.btnCancel.setOnClickListener { dialog.dismiss() }
         d.btnConfirm.setOnClickListener {

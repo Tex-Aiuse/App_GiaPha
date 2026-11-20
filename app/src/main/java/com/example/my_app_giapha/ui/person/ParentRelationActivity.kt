@@ -1,6 +1,6 @@
 package com.example.my_app_giapha.ui.person
 
-import android.app.DatePickerDialog
+import com.example.my_app_giapha.ui.common.hienHopChonNgay
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
@@ -239,11 +239,7 @@ class ParentRelationActivity : AppCompatActivity() {
 
     /** Không cho chọn ngày ở tương lai. */
     private fun chonNgay(hienTai: LocalDate?, khiChon: (LocalDate) -> Unit) {
-        val m = hienTai ?: LocalDate.now()
-        DatePickerDialog(
-            this, { _, y, th, ng -> khiChon(LocalDate.of(y, th + 1, ng)) },
-            m.year, m.monthValue - 1, m.dayOfMonth
-        ).apply { datePicker.maxDate = System.currentTimeMillis() }.show()
+        hienHopChonNgay(supportFragmentManager, hienTai, khiChon = khiChon)
     }
 
     /** Hộp cách mép 24dp hai bên, co lại khi bàn phím hiện. */
