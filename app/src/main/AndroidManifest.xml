@@ -42,6 +42,10 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ui.tree.TreeDemoActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
