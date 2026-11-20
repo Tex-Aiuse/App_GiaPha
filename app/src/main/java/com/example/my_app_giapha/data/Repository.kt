@@ -154,6 +154,18 @@ data class TrangTaiKhoan(
     val tongTrang: Int,
     val tongSo: Int
 )
+/** Một không gian mà tài khoản có vai trò (GD-22). */
+data class KhongGianCuaTaiKhoan(
+    val khongGian: KhongGian,
+    val vaiTro: VaiTro,
+    val biChan: Boolean
+)
+
+/** Dữ liệu GD-22: tài khoản + các không gian đang tham gia (không gồm không gian đã rời). */
+data class ChiTietTaiKhoan(
+    val taiKhoan: TaiKhoan,
+    val khongGian: List<KhongGianCuaTaiKhoan>
+)
 /** Kết quả tìm tài khoản theo SĐT để mời vào một không gian (GD-15). */
 data class KetQuaTimSdt(
     val idTaiKhoan: Int,
@@ -324,4 +336,10 @@ interface Repository {
     // ---- AdminApp: tài khoản toàn hệ thống (GD-21). Chỉ LoaiTaiKhoan = AdminApp ----
     /** Tìm theo số điện thoại (khớp một phần), mới tạo xếp trước, 20 dòng mỗi trang, trang đánh số từ 1. */
     fun danhSachTaiKhoan(tuKhoaSdt: String, trang: Int): Kq<TrangTaiKhoan>
+    // ---- AdminApp: chi tiết tài khoản, cấm / gỡ cấm (GD-22) ----
+    fun chiTietTaiKhoan(idTaiKhoan: Int): Kq<ChiTietTaiKhoan>
+    /** Cấm đăng nhập toàn hệ thống (DaKhoa). Không cấm được tài khoản AdminApp. */
+    fun camTaiKhoan(idTaiKhoan: Int): Kq<Unit>
+    /** Gỡ cấm (về HoatDong). */
+    fun goCamTaiKhoan(idTaiKhoan: Int): Kq<Unit>
 }

@@ -1247,4 +1247,36 @@ class FakeRepository : Repository {
         val t = trang.coerceIn(1, tongTrang)
         return Kq.Ok(TrangTaiKhoan(loc.drop((t - 1) * coSo).take(coSo), t, tongTrang, loc.size))
     }
+    override fun chiTietTaiKhoan(idTaiKhoan: Int): Kq<ChiTietTaiKhoan> {
+        if (giaLapLoi) return matKetNoi()
+        quyenAdminApp()?.let { return it }
+        val tk = taiKhoan.firstOrNull { it.idTaiKhoan == idTaiKhoan }
+            ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy tài khoản này")
+        val ds = thanVien
+            .filter { it.idTaiKhoan == idTaiKhoan && it.trangThai != TrangThaiThanhVien.DA_ROI }
+            .mapNotNull { m ->
+                khongGian.firstOrNull { it.idKhongGian == m.idKhongGian }
+                    ?.let { KhongGianCuaTaiKhoan(it, m.vaiTro, m.trangThai == TrangThaiThanhVien.BI_CAM) }
+            }
+            .sortedBy { it.khongGian.idKhongGian }
+        return Kq.Ok(ChiTietTaiKhoan(tk, ds))
+    }
+
+    private fun doiTrangThaiTaiKhoan(idTaiKhoan: Int, tu: TrangThaiTaiKhoan, den: TrangThaiTaiKhoan, loiSai: String): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        quyenAdminApp()?.let { return it }
+        val i = taiKhoan.indexOfFirst { it.idTaiKhoan == idTaiKhoan }
+        if (i < 0) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy tài khoản này")
+        val t = taiKhoan[i]
+        if (t.loaiTaiKhoan == LoaiTaiKhoan.ADMIN_APP) return loi(LoiApp.KHONG_CO_QUYEN, "Không thể cấm tài khoản quản trị hệ thống")
+        if (t.trangThai != tu) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, loiSai)
+        taiKhoan[i] = t.copy(trangThai = den)
+        return Kq.Ok(Unit)
+    }
+
+    override fun camTaiKhoan(idTaiKhoan: Int): Kq<Unit> =
+        doiTrangThaiTaiKhoan(idTaiKhoan, TrangThaiTaiKhoan.HOAT_DONG, TrangThaiTaiKhoan.DA_KHOA, "Tài khoản này đã bị cấm")
+
+    override fun goCamTaiKhoan(idTaiKhoan: Int): Kq<Unit> =
+        doiTrangThaiTaiKhoan(idTaiKhoan, TrangThaiTaiKhoan.DA_KHOA, TrangThaiTaiKhoan.HOAT_DONG, "Tài khoản này không bị cấm")
 }
