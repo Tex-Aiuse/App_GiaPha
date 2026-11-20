@@ -17,6 +17,8 @@ import com.example.my_app_giapha.databinding.DialogConfirmBinding
  * destructive = true: nút xác nhận đỏ (xóa, chặn, cấm, gỡ...); false: nút nâu.
  * Ví dụ:
  *   showConfirmDialog("Xóa Gia phả họ Nguyễn?", "Toàn bộ dữ liệu sẽ bị xóa vĩnh viễn.", "Xóa") { ... }
+ * iconRes: biểu tượng riêng thay cho dấu cảnh báo mặc định (ví dụ ổ khóa).
+ * onCancel: gọi khi người dùng bấm Hủy hoặc đóng hộp thoại mà chưa xác nhận.
  */
 fun Context.showConfirmDialog(
     title: String,
@@ -25,6 +27,8 @@ fun Context.showConfirmDialog(
     cancelText: String = "Hủy",
     destructive: Boolean = true,
     showIcon: Boolean = destructive,
+    iconRes: Int? = null,
+    onCancel: (() -> Unit)? = null,
     onConfirm: () -> Unit
 ) {
     val b = DialogConfirmBinding.inflate(LayoutInflater.from(this))
@@ -37,14 +41,18 @@ fun Context.showConfirmDialog(
             ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brown_primary))
     }
     if (!showIcon) b.iconWrap.visibility = android.view.View.GONE
+    if (iconRes != null) b.ivIcon.setImageResource(iconRes)
 
 
     val dialog = AlertDialog.Builder(this).setView(b.root).create()
+    var daXacNhan = false
     b.btnCancel.setOnClickListener { dialog.dismiss() }
     b.btnConfirm.setOnClickListener {
+        daXacNhan = true
         dialog.dismiss()
         onConfirm()
     }
+    dialog.setOnDismissListener { if (!daXacNhan) onCancel?.invoke() }
     dialog.show()
 
     val margin = (24 * resources.displayMetrics.density).toInt()

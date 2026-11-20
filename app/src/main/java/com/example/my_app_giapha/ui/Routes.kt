@@ -23,6 +23,7 @@ import com.example.my_app_giapha.ui.space.MemberListActivity
 import com.example.my_app_giapha.ui.space.InviteMemberActivity
 import com.example.my_app_giapha.ui.space.InviteCodeActivity
 import com.example.my_app_giapha.ui.space.GanOActivity
+import com.example.my_app_giapha.ui.space.CaiDatKhongGianActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -160,7 +161,13 @@ object Routes {
         )
 
     fun moCaiDatKhongGian(activity: Activity, idKhongGian: Int) =
-        activity.tam("TẠM: GD-18 Cài đặt Không gian")
+        activity.startActivity(
+            Intent(activity, CaiDatKhongGianActivity::class.java)
+                .putExtra(CaiDatKhongGianActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+        )
+
+    /** Về GD-03 và đóng mọi màn cũ (dùng sau khi xóa không gian ở GD-18). */
+    fun veDanhSachKhongGian(activity: Activity) = activity.moMoi(SpaceListActivity::class.java)
 
     fun moQuanLyVaiTro(activity: Activity, idKhongGian: Int) =
         activity.tam("TẠM: GD-19 Quản lý vai trò")

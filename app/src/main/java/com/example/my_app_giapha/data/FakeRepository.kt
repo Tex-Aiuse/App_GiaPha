@@ -1047,6 +1047,8 @@ class FakeRepository : Repository {
             ?: return loi(LoiApp.KHONG_CO_QUYEN, "Bạn không có quyền xem không gian này")
         if (toi.vaiTro == VaiTro.KHACH_TAM)
             return loi(LoiApp.KHONG_CO_QUYEN, "Khách tạm không tạo được mã mời")
+        if (khongGian.first { it.idKhongGian == idKhongGian }.cheDoRiengTu)
+            return loi(LoiApp.KHONG_GIAN_RIENG_TU, "Không gian đang ở chế độ riêng tư, không tạo được mã mời")
 
         // 8 ký tự, bỏ I, O, 0, 1 cho dễ đọc, như mã mẫu "KT7H29QX"
         val bang = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -1117,5 +1119,59 @@ class FakeRepository : Repository {
         }
         thanVien[i] = thanVien[i].copy(idOThanhVien = moi.idOThanhVien, vaiTro = VaiTro.THANH_VIEN)
         return Kq.Ok(moi)
+    }
+
+    // ---------------- Cài đặt Không gian (GD-18) ----------------
+
+    private fun quyenCaiDat(idKhongGian: Int): Kq.Loi? =
+        if (vaiTroCuaToi(idKhongGian)?.vaiTro == VaiTro.ADMIN) null
+        else loi(LoiApp.KHONG_CO_QUYEN, "Chỉ Admin mới có quyền thay đổi cài đặt không gian")
+
+    override fun doiTenKhongGian(idKhongGian: Int, ten: String): Kq<KhongGian> {
+        if (giaLapLoi) return matKetNoi()
+        quyenCaiDat(idKhongGian)?.let { return it }
+        val i = khongGian.indexOfFirst { it.idKhongGian == idKhongGian }
+        if (i < 0) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        if (ten.isBlank()) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Vui lòng nhập tên Không gian")
+        khongGian[i] = khongGian[i].copy(tenKhongGian = ten.trim())
+        return Kq.Ok(khongGian[i])
+    }
+
+    override fun datRiengTu(idKhongGian: Int, bat: Boolean): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        quyenCaiDat(idKhongGian)?.let { return it }
+        val i = khongGian.indexOfFirst { it.idKhongGian == idKhongGian }
+        if (i < 0) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        khongGian[i] = khongGian[i].copy(cheDoRiengTu = bat)
+        if (bat) {
+            // Ngắt phiên mọi Khách tạm đang hoạt động (chuyển sang Đã rời, như khi họ tự thoát)
+            for (k in thanVien.indices) {
+                val t = thanVien[k]
+                if (t.idKhongGian == idKhongGian && t.vaiTro == VaiTro.KHACH_TAM &&
+                    t.trangThai == TrangThaiThanhVien.HOAT_DONG
+                ) thanVien[k] = t.copy(trangThai = TrangThaiThanhVien.DA_ROI)
+            }
+        }
+        return Kq.Ok(Unit)
+    }
+
+    override fun xoaKhongGian(idKhongGian: Int): Kq<Unit> {
+        if (giaLapLoi) return matKetNoi()
+        quyenCaiDat(idKhongGian)?.let { return it }
+        if (khongGian.none { it.idKhongGian == idKhongGian }) return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        // Thứ tự như trong SQL: dữ liệu con trước, không gian sau cùng.
+        val cacO = oThanhVien.filter { it.idKhongGian == idKhongGian }.map { it.idOThanhVien }.toSet()
+        val cacCD = cuocDoi.filter { it.idOThanhVien in cacO }.map { it.idCuocDoi }.toSet()
+        binhLuan.removeAll { it.idCuocDoi in cacCD }
+        cuocDoi.removeAll { it.idOThanhVien in cacO }
+        thanhTuu.removeAll { it.idOThanhVien in cacO }
+        avatar.removeAll { it.idOThanhVien in cacO }
+        quanHeChaMe.removeAll { it.idCon in cacO || it.idPhuHuynh in cacO }
+        honNhan.removeAll { it.idChong in cacO || it.idVo in cacO }
+        oThanhVien.removeAll { it.idOThanhVien in cacO }
+        maCode.removeAll { it.idKhongGian == idKhongGian }
+        thanVien.removeAll { it.idKhongGian == idKhongGian }
+        khongGian.removeAll { it.idKhongGian == idKhongGian }
+        return Kq.Ok(Unit)
     }
 }

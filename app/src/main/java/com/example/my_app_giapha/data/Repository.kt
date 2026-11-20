@@ -297,4 +297,12 @@ interface Repository {
     fun ganO(idKhongGian: Int, idTaiKhoan: Int, idO: Int): Kq<Unit>
     /** Như themO, rồi gán luôn Ô mới cho Thành viên hờ. Lỗi ở bước nào thì không ghi gì. */
     fun themOVaGan(idKhongGian: Int, f: FormO, quanHe: QuanHeMoi?, idTaiKhoan: Int): Kq<OThanhVien>
+
+    // ---- Cài đặt Không gian (GD-18). Chỉ Admin; Quản lý không được. ----
+    /** Đổi tên không gian. Tên trống thì báo lỗi. */
+    fun doiTenKhongGian(idKhongGian: Int, ten: String): Kq<KhongGian>
+    /** Bật/tắt chế độ riêng tư. Khi bật: mọi Khách tạm đang hoạt động bị ngắt truy cập ngay. */
+    fun datRiengTu(idKhongGian: Int, bat: Boolean): Kq<Unit>
+    /** Xóa vĩnh viễn không gian cùng toàn bộ dữ liệu (thứ tự như trong SQL, không dùng CASCADE). */
+    fun xoaKhongGian(idKhongGian: Int): Kq<Unit>
 }
