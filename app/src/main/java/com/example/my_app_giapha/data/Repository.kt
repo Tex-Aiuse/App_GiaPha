@@ -130,7 +130,23 @@ data class DongBinhLuan(
     val thoiGian: java.time.LocalDateTime,
     val xoaDuoc: Boolean
 )
+/** Một dòng GD-14: tài khoản có vai trò trong không gian. idO, hoTenO, anhO: Ô được gán (nếu có). */
+data class DongThanhVien(
+    val idTaiKhoan: Int,
+    val tenHienThi: String,          // lấy từ TaiKhoan, không phải họ tên của Ô
+    val vaiTro: VaiTro,
+    val biChan: Boolean,
+    val idO: Int?,
+    val hoTenO: String?,
+    val anhO: Avatar?                // ảnh đại diện đang dùng của Ô
+)
 
+/** Dữ liệu GD-14, kèm vai trò người xem để quyết định nút Mời, Gán Ô, Quản lý vai trò. */
+data class DanhSachThanhVien(
+    val khongGian: KhongGian,
+    val toi: ThanVienTrongKGian,
+    val thanhVien: List<DongThanhVien>
+)
 /** Nội dung tiểu sử đang có. Ô chưa có tiểu sử thì tieuSu = null. */
 data class TieuSuO(
     val noiDung: String,
@@ -254,4 +270,7 @@ interface Repository {
     fun suaKieuAnh(idAvatar: Int, loaiKhung: String, hieuUng: String): Kq<Unit>
     /** Đổi một ảnh lịch sử thành đang dùng; ảnh đang dùng hiện tại chuyển sang lịch sử. */
     fun dungLaiAnh(idAvatar: Int): Kq<Unit>
+    // ---- Danh sách thành viên (GD-14) ----
+    /** Mọi vai trò trong không gian đều xem được. Không gồm người đã rời; người bị chặn xếp cuối. */
+    fun danhSachThanhVien(idKhongGian: Int): Kq<DanhSachThanhVien>
 }

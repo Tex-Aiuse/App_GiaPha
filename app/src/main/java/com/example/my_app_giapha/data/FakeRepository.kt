@@ -951,4 +951,36 @@ class FakeRepository : Repository {
         avatar[i] = chon.copy(trangThai = TrangThaiAvatar.DANG_DUNG)
         return Kq.Ok(Unit)
     }
+    // ---------------- Danh sách thành viên (GD-14) ----------------
+
+    override fun danhSachThanhVien(idKhongGian: Int): Kq<DanhSachThanhVien> {
+        if (giaLapLoi) return matKetNoi()
+        val toi = vaiTroCuaToi(idKhongGian)
+            ?: return loi(LoiApp.KHONG_CO_QUYEN, "Bạn không có quyền xem không gian này")
+        val kg = khongGian.firstOrNull { it.idKhongGian == idKhongGian }
+            ?: return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy không gian này")
+        if (kg.cheDoRiengTu && toi.vaiTro == VaiTro.KHACH_TAM)
+            return loi(LoiApp.KHONG_GIAN_RIENG_TU, "Không gian này đang ở chế độ riêng tư")
+
+        val ds = thanVien
+            .filter { it.idKhongGian == idKhongGian && it.trangThai != TrangThaiThanhVien.DA_ROI }
+            .map { m ->
+                val o = m.idOThanhVien?.let { layO(it) }
+                DongThanhVien(
+                    idTaiKhoan = m.idTaiKhoan,
+                    tenHienThi = tenTaiKhoan(m.idTaiKhoan),
+                    vaiTro = m.vaiTro,
+                    biChan = m.trangThai == TrangThaiThanhVien.BI_CAM,
+                    idO = o?.idOThanhVien,
+                    hoTenO = o?.hoTen,
+                    anhO = o?.let { x ->
+                        avatar.firstOrNull {
+                            it.idOThanhVien == x.idOThanhVien && it.trangThai == TrangThaiAvatar.DANG_DUNG
+                        }
+                    }
+                )
+            }
+            .sortedWith(compareBy({ it.biChan }, { it.vaiTro.ordinal }, { it.tenHienThi }))
+        return Kq.Ok(DanhSachThanhVien(kg, toi, ds))
+    }
 }

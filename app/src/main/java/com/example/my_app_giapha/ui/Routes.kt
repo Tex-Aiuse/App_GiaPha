@@ -19,6 +19,7 @@ import com.example.my_app_giapha.ui.person.BioActivity
 import com.example.my_app_giapha.ui.person.BioEditActivity
 import com.example.my_app_giapha.ui.person.ThanhTuuActivity
 import com.example.my_app_giapha.ui.person.AnhDaiDienActivity
+import com.example.my_app_giapha.ui.space.MemberListActivity
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
 
@@ -124,7 +125,16 @@ object Routes {
         )
 
     fun moDanhSachThanhVien(activity: Activity, idKhongGian: Int) =
-        activity.tam("TẠM: GD-14 Danh sách thành viên")
+        activity.startActivity(
+            Intent(activity, MemberListActivity::class.java)
+                .putExtra(MemberListActivity.EXTRA_ID_KHONG_GIAN, idKhongGian)
+        )
+
+    fun moMoiThanhVien(activity: Activity, idKhongGian: Int) =
+        activity.tam("TẠM: GD-15 Mời thành viên")
+
+    fun moGanO(activity: Activity, idKhongGian: Int, idTaiKhoan: Int) =
+        activity.tam("TẠM: GD-17 Gán Ô cho tài khoản #$idTaiKhoan")
 
     fun moMaMoi(activity: Activity, idKhongGian: Int) =
         activity.tam("TẠM: GD-16 Mã mời")
