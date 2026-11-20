@@ -115,6 +115,31 @@ data class HonNhanCuaO(
     val ds: List<DongHonNhan>
 )
 
+/** Một dòng bình luận ở GD-09a. xoaDuoc: người đang xem là tác giả hoặc Admin/Quản lý. */
+data class DongBinhLuan(
+    val id: Int,
+    val idNguoi: Int,
+    val tenNguoi: String,
+    val noiDung: String,
+    val thoiGian: java.time.LocalDateTime,
+    val xoaDuoc: Boolean
+)
+
+/** Nội dung tiểu sử đang có. Ô chưa có tiểu sử thì tieuSu = null. */
+data class TieuSuO(
+    val noiDung: String,
+    val tenNguoiViet: String,
+    val ngayCapNhat: java.time.LocalDateTime
+)
+
+/** Dữ liệu màn GD-09a. Bình luận xếp mới nhất lên đầu. */
+data class TieuSuVaBinhLuan(
+    val o: OThanhVien,
+    val toi: ThanVienTrongKGian,          // vai trò của người đang xem
+    val tieuSu: TieuSuO?,
+    val binhLuan: List<DongBinhLuan>
+)
+
 /**
  * Cửa duy nhất giữa màn hình và dữ liệu. Màn hình không đọc SampleData trực tiếp.
  * Hiện chạy bằng FakeRepository (bộ nhớ); sau này thay bằng bản gọi API.
@@ -185,5 +210,13 @@ interface Repository {
     fun anQuanHeChaMe(idCon: Int, idPhuHuynh: List<Int>, an: Boolean): Kq<Unit>
     /** an = true: ẩn; false: hiện lại. Dùng QHeHonNhan.HienThiLienKet. */
     fun anHonNhan(idHonNhan: Int, an: Boolean): Kq<Unit>
-
+    // ---- Tiểu sử và bình luận (GD-09a, 09b) ----
+    /** Mọi vai trò xem được (Khách tạm bị chặn nếu không gian riêng tư). */
+    fun tieuSuVaBinhLuan(idO: Int): Kq<TieuSuVaBinhLuan>
+    /** Admin/Quản lý. Viết mới hoặc sửa: chưa có thì tạo, có rồi thì cập nhật nội dung và ngày. Không được rỗng. */
+    fun luuTieuSu(idO: Int, noiDung: String): Kq<Unit>
+    /** Admin, Quản lý, Thành viên. Chưa có bản tiểu sử thì tự tạo một bản rỗng để gắn bình luận. */
+    fun themBinhLuan(idO: Int, noiDung: String): Kq<Unit>
+    /** Tác giả của bình luận, hoặc Admin/Quản lý. */
+    fun xoaBinhLuan(idBinhLuan: Int): Kq<Unit>
 }
