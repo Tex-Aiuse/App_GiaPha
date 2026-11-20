@@ -365,6 +365,10 @@ class FakeRepository : Repository {
                         return loi(LoiApp.KHONG_TIM_THAY, "Không tìm thấy người được chọn")
                     cacChaMe.add(QuanHeChaMe(idMoi, c.idO, c.loai, c.ngayXacLap))
                 }
+                // Tối đa một cha ruột và một mẹ ruột
+                val gioiRuot = ds.filter { it.loai == LoaiQuanHe.RUOT }.mapNotNull { layO(it.idO)?.gioiTinh }
+                if (gioiRuot.size == 2 && gioiRuot[0] == gioiRuot[1] && gioiRuot[0] != GioiTinh.KHAC)
+                    return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Chỉ có thể có một cha ruột và một mẹ ruột")
             }
             is QuanHeMoi.LaVoChong -> {
                 val kia = layO(quanHe.idNguoiKia)
