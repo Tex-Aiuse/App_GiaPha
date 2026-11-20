@@ -1,8 +1,10 @@
 package com.example.my_app_giapha.ui.admin
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.core.widget.doAfterTextChanged
 import com.example.my_app_giapha.data.Kq
 import com.example.my_app_giapha.data.Services
@@ -12,12 +14,10 @@ import com.example.my_app_giapha.databinding.ItemTaiKhoanHeThongBinding
 import com.example.my_app_giapha.model.TaiKhoan
 import com.example.my_app_giapha.model.TrangThaiTaiKhoan
 import com.example.my_app_giapha.ui.Routes
-import com.example.my_app_giapha.ui.common.TabAdmin
 import com.example.my_app_giapha.ui.common.attachPhoneFormat
 import com.example.my_app_giapha.ui.common.formatPhone
 import com.example.my_app_giapha.ui.common.setBlockedBadge
 import com.example.my_app_giapha.ui.common.setRoleBadge
-import com.example.my_app_giapha.ui.common.setup
 import java.time.format.DateTimeFormatter
 
 /**
@@ -25,22 +25,30 @@ import java.time.format.DateTimeFormatter
  * 20 dòng mỗi trang, tìm theo số điện thoại (gõ một phần cũng khớp), mới tạo xếp trước.
  * Tìm kiếm quay về trang 1. Tải lại mỗi lần hiện lại để thấy thay đổi từ GD-22.
  */
-class TaiKhoanHeThongActivity : AppCompatActivity() {
+/** Là trang đầu của AdminHomeActivity (vuốt ngang hoặc bấm tab để chuyển với tab Không gian). */
+class TaiKhoanHeThongFragment : Fragment() {
 
-    private lateinit var b: ActivityTaiKhoanHeThongBinding
+    private var _b: ActivityTaiKhoanHeThongBinding? = null
+    private val b get() = _b!!
     private val repo get() = Services.repository
     private val fmtNgay = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     private var trang = 1
     private var tuKhoa = ""
     private var daCoDuLieu = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        b = ActivityTaiKhoanHeThongBinding.inflate(layoutInflater)
-        setContentView(b.root)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _b = ActivityTaiKhoanHeThongBinding.inflate(inflater, container, false)
+        return b.root
+    }
 
-        b.adminBar.setup(this, TabAdmin.TAI_KHOAN)
+    override fun onDestroyView() {
+        _b = null
+        super.onDestroyView()
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        daCoDuLieu = false
         b.etSearch.attachPhoneFormat { digits ->
             if (digits != tuKhoa) {
                 tuKhoa = digits
@@ -101,7 +109,7 @@ class TaiKhoanHeThongActivity : AppCompatActivity() {
             r.tvStatus.setRoleBadge("ThanhVien")      // lấy kiểu nhãn xanh, đổi chữ thành "Hoạt động"
             r.tvStatus.text = "Hoạt động"
         }
-        r.root.setOnClickListener { Routes.moChiTietTaiKhoan(this, tk.idTaiKhoan) }
+        r.root.setOnClickListener { Routes.moChiTietTaiKhoan(requireActivity(), tk.idTaiKhoan) }
         return r.root
     }
 }

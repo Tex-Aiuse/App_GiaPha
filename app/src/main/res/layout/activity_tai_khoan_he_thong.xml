@@ -5,10 +5,6 @@
     android:background="@color/bg_screen"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/adminBar"
-        layout="@layout/view_admin_bar" />
-
     <!-- Ô tìm theo số điện thoại -->
     <LinearLayout
         android:id="@+id/fieldSearch"

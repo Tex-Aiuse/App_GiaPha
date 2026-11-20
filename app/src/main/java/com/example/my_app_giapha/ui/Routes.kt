@@ -25,9 +25,8 @@ import com.example.my_app_giapha.ui.space.InviteCodeActivity
 import com.example.my_app_giapha.ui.space.GanOActivity
 import com.example.my_app_giapha.ui.space.CaiDatKhongGianActivity
 import com.example.my_app_giapha.ui.space.QuanLyVaiTroActivity
-import com.example.my_app_giapha.ui.admin.TaiKhoanHeThongActivity
 import com.example.my_app_giapha.ui.admin.ChiTietTaiKhoanActivity
-import com.example.my_app_giapha.ui.admin.KhongGianHeThongActivity
+import com.example.my_app_giapha.ui.admin.AdminHomeActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -39,9 +38,17 @@ object Routes {
         startActivity(Intent(this, cls).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
     }
 
+    private fun Activity.moQuanTri(tab: Int) {
+        startActivity(
+            Intent(this, AdminHomeActivity::class.java)
+                .putExtra(AdminHomeActivity.EXTRA_TAB, tab)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        )
+    }
+
     fun sauDangNhap(activity: Activity, tk: TaiKhoan) {
         if (tk.loaiTaiKhoan == LoaiTaiKhoan.ADMIN_APP) {
-            activity.moMoi(TaiKhoanHeThongActivity::class.java)
+            activity.moQuanTri(0)
         } else {
             activity.moMoi(SpaceListActivity::class.java)
         }
@@ -186,9 +193,8 @@ object Routes {
         activity.startActivity(Intent(activity, JoinCodeActivity::class.java))
 
     // ---- AdminApp ----
-    fun moDanhSachTaiKhoanHeThong(activity: Activity) = activity.moMoi(TaiKhoanHeThongActivity::class.java)
-
-    fun moDanhSachKhongGianHeThong(activity: Activity) = activity.moMoi(KhongGianHeThongActivity::class.java)
+    fun moDanhSachTaiKhoanHeThong(activity: Activity) = activity.moQuanTri(0)
+    fun moDanhSachKhongGianHeThong(activity: Activity) = activity.moQuanTri(1)
 
     fun moChiTietTaiKhoan(activity: Activity, idTaiKhoan: Int) =
         activity.startActivity(

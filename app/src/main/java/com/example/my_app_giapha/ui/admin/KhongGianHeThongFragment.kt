@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.core.widget.doAfterTextChanged
 import com.example.my_app_giapha.R
 import com.example.my_app_giapha.data.BoLocKhongGian
@@ -21,10 +21,8 @@ import com.example.my_app_giapha.databinding.ActivityKhongGianHeThongBinding
 import com.example.my_app_giapha.databinding.DialogLocKhongGianBinding
 import com.example.my_app_giapha.databinding.ItemKhongGianHeThongBinding
 import com.example.my_app_giapha.ui.Routes
-import com.example.my_app_giapha.ui.common.TabAdmin
 import com.example.my_app_giapha.ui.common.attachPhoneFormat
 import com.example.my_app_giapha.ui.common.formatPhone
-import com.example.my_app_giapha.ui.common.setup
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -32,23 +30,31 @@ import java.time.format.DateTimeFormatter
  * GD-23 — Danh sách không gian toàn hệ thống (AdminApp). 20 dòng mỗi trang, mới tạo xếp trước.
  * Ô tìm theo tên không gian; nút bộ lọc thêm: tên chủ, số điện thoại chủ, ngày tạo (từ – đến). Các điều kiện cộng lại.
  * Đổi tìm hoặc lọc thì về trang 1. Bấm một dòng mở GD-24 (bước 11d).
+ * Là trang thứ hai của AdminHomeActivity (vuốt ngang hoặc bấm tab để chuyển với tab Tài khoản).
  */
-class KhongGianHeThongActivity : AppCompatActivity() {
+class KhongGianHeThongFragment : Fragment() {
 
-    private lateinit var b: ActivityKhongGianHeThongBinding
+    private var _b: ActivityKhongGianHeThongBinding? = null
+    private val b get() = _b!!
     private val repo get() = Services.repository
     private val fmtNgay = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     private var trang = 1
     private var loc = BoLocKhongGian()
     private var daCoDuLieu = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        b = ActivityKhongGianHeThongBinding.inflate(layoutInflater)
-        setContentView(b.root)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _b = ActivityKhongGianHeThongBinding.inflate(inflater, container, false)
+        return b.root
+    }
 
-        b.adminBar.setup(this, TabAdmin.KHONG_GIAN)
+    override fun onDestroyView() {
+        _b = null
+        super.onDestroyView()
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        daCoDuLieu = false
         b.etSearch.doAfterTextChanged {
             val v = it?.toString().orEmpty()
             b.ivClear.visibility = if (v.isEmpty()) View.GONE else View.VISIBLE
@@ -117,7 +123,7 @@ class KhongGianHeThongActivity : AppCompatActivity() {
         r.tvName.text = kg.tenKhongGian
         r.tvName.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, if (kg.cheDoRiengTu) R.drawable.ic_lock else 0, 0)
         r.tvSub.text = "Người tạo: ${d.tenChu} · ${kg.ngayTao.format(fmtNgay)}"
-        r.root.setOnClickListener { Routes.moChiTietKhongGianHeThong(this, kg.idKhongGian) }
+        r.root.setOnClickListener { Routes.moChiTietKhongGianHeThong(requireActivity(), kg.idKhongGian) }
         return r.root
     }
 
@@ -139,8 +145,8 @@ class KhongGianHeThongActivity : AppCompatActivity() {
     // ---- hộp bộ lọc ----
 
     private fun moHopLoc() {
-        val d = DialogLocKhongGianBinding.inflate(LayoutInflater.from(this))
-        val dialog = AlertDialog.Builder(this).setView(d.root).create()
+        val d = DialogLocKhongGianBinding.inflate(LayoutInflater.from(requireContext()))
+        val dialog = AlertDialog.Builder(requireContext()).setView(d.root).create()
 
         var tu: LocalDate? = loc.tuNgay
         var den: LocalDate? = loc.denNgay
@@ -200,7 +206,7 @@ class KhongGianHeThongActivity : AppCompatActivity() {
 
     private fun chonNgay(hienTai: LocalDate?, khiChon: (LocalDate) -> Unit) {
         val m = hienTai ?: LocalDate.now()
-        DatePickerDialog(this, { _, y, th, ng -> khiChon(LocalDate.of(y, th + 1, ng)) },
+        DatePickerDialog(requireContext(), { _, y, th, ng -> khiChon(LocalDate.of(y, th + 1, ng)) },
             m.year, m.monthValue - 1, m.dayOfMonth).show()
     }
 }

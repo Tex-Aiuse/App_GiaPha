@@ -13,10 +13,12 @@ import com.example.my_app_giapha.ui.Routes
 enum class TabAdmin { TAI_KHOAN, KHONG_GIAN }
 
 /**
- * Thanh điều hướng của AdminApp (GD-21, GD-23). Gọi: binding.adminBar.setup(this, TabAdmin.TAI_KHOAN)
- * Chuyển tab thay cả ngăn xếp màn hình (hai màn này đều là màn gốc); "Đăng xuất" về GD-02.
+ * Thanh điều hướng của AdminApp (AdminHomeActivity). Gọi:
+ *   binding.adminBar.setup(this, TabAdmin.TAI_KHOAN) { tab -> pager.setCurrentItem(tab.ordinal, true) }
+ * Bấm tab chỉ báo ra ngoài qua khiChonTab (không mở màn hình mới); "Đăng xuất" về GD-02.
+ * Khi trang đổi (vuốt ngang), gọi datTab(...) để tô lại tab đang mở.
  */
-fun ViewAdminBarBinding.setup(activity: Activity, dangMo: TabAdmin) {
+fun ViewAdminBarBinding.setup(activity: Activity, dangMo: TabAdmin, khiChonTab: (TabAdmin) -> Unit) {
     val tv = TypedValue()
     root.context.theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)
     val barHeight = TypedValue.complexToDimensionPixelSize(tv.data, root.resources.displayMetrics)
@@ -26,7 +28,14 @@ fun ViewAdminBarBinding.setup(activity: Activity, dangMo: TabAdmin) {
         v.layoutParams = v.layoutParams.apply { height = barHeight + top }
         insets
     }
+    datTab(dangMo)
+    tabAccounts.setOnClickListener { khiChonTab(TabAdmin.TAI_KHOAN) }
+    tabSpaces.setOnClickListener { khiChonTab(TabAdmin.KHONG_GIAN) }
+    btnLogout.setOnClickListener { Routes.dangXuat(activity) }
+}
 
+/** Tô đậm tab đang mở, làm mờ tab còn lại. */
+fun ViewAdminBarBinding.datTab(dangMo: TabAdmin) {
     val dam = ResourcesCompat.getFont(root.context, R.font.be_vietnam_pro_bold)
     val thuong = ResourcesCompat.getFont(root.context, R.font.be_vietnam_pro)
     val taiKhoan = dangMo == TabAdmin.TAI_KHOAN
@@ -36,8 +45,4 @@ fun ViewAdminBarBinding.setup(activity: Activity, dangMo: TabAdmin) {
     tvTabSpaces.typeface = if (taiKhoan) thuong else dam
     tvTabSpaces.alpha = if (taiKhoan) 0.7f else 1f
     lineSpaces.visibility = if (taiKhoan) View.INVISIBLE else View.VISIBLE
-
-    tabAccounts.setOnClickListener { if (!taiKhoan) Routes.moDanhSachTaiKhoanHeThong(activity) }
-    tabSpaces.setOnClickListener { if (taiKhoan) Routes.moDanhSachKhongGianHeThong(activity) }
-    btnLogout.setOnClickListener { Routes.dangXuat(activity) }
 }
