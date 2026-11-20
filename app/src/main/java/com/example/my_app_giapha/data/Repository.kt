@@ -154,6 +154,31 @@ data class TrangTaiKhoan(
     val tongTrang: Int,
     val tongSo: Int
 )
+/** Bộ lọc danh sách không gian của AdminApp (GD-23). Chuỗi rỗng / null = không lọc theo trường đó. */
+data class BoLocKhongGian(
+    val ten: String = "",             // tên không gian: khớp một phần, không phân biệt hoa thường và dấu
+    val tenChu: String = "",          // tên hiển thị của chủ (người tạo) không gian, khớp như trên
+    val sdtChu: String = "",          // số điện thoại của chủ: chỉ lấy chữ số, khớp một phần
+    val tuNgay: LocalDate? = null,    // ngày tạo từ ngày này, tính cả ngày đó
+    val denNgay: LocalDate? = null    // ngày tạo đến ngày này, tính cả ngày đó
+) {
+    /** Số nhóm lọc nâng cao đang dùng (tên chủ, SĐT chủ, ngày tạo). Ô tìm tên không tính. */
+    val soLocNangCao: Int
+        get() = listOf(tenChu.isNotBlank(), sdtChu.isNotBlank(), tuNgay != null || denNgay != null).count { it }
+    val dangLoc: Boolean get() = soLocNangCao > 0
+    /** Bỏ các lọc nâng cao, giữ nguyên ô tìm tên. */
+    fun boLocNangCao() = copy(tenChu = "", sdtChu = "", tuNgay = null, denNgay = null)
+}
+
+data class DongKhongGianHeThong(val khongGian: KhongGian, val tenChu: String)
+
+/** Một trang không gian toàn hệ thống (GD-23). trang đã được ép vào khoảng hợp lệ. */
+data class TrangKhongGianHeThong(
+    val ds: List<DongKhongGianHeThong>,
+    val trang: Int,
+    val tongTrang: Int,
+    val tongSo: Int
+)
 /** Một không gian mà tài khoản có vai trò (GD-22). */
 data class KhongGianCuaTaiKhoan(
     val khongGian: KhongGian,
@@ -342,4 +367,7 @@ interface Repository {
     fun camTaiKhoan(idTaiKhoan: Int): Kq<Unit>
     /** Gỡ cấm (về HoatDong). */
     fun goCamTaiKhoan(idTaiKhoan: Int): Kq<Unit>
+    // ---- AdminApp: không gian toàn hệ thống (GD-23). Chỉ LoaiTaiKhoan = AdminApp ----
+    /** Lọc theo BoLocKhongGian (các điều kiện cộng lại), mới tạo xếp trước, 20 dòng mỗi trang. tuNgay sau denNgay: lỗi. */
+    fun danhSachKhongGianHeThong(loc: BoLocKhongGian, trang: Int): Kq<TrangKhongGianHeThong>
 }

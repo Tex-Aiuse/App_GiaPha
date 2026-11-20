@@ -1247,6 +1247,35 @@ class FakeRepository : Repository {
         val t = trang.coerceIn(1, tongTrang)
         return Kq.Ok(TrangTaiKhoan(loc.drop((t - 1) * coSo).take(coSo), t, tongTrang, loc.size))
     }
+    override fun danhSachKhongGianHeThong(loc: BoLocKhongGian, trang: Int): Kq<TrangKhongGianHeThong> {
+        if (giaLapLoi) return matKetNoi()
+        quyenAdminApp()?.let { return it }
+        val tu = loc.tuNgay
+        val den = loc.denNgay
+        if (tu != null && den != null && tu.isAfter(den))
+            return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc")
+
+        fun chuan(s: String) = boDau(s).lowercase().trim()
+        val ten = chuan(loc.ten)
+        val tenChu = chuan(loc.tenChu)
+        val sdt = loc.sdtChu.filter { it.isDigit() }
+
+        val loc2 = khongGian.mapNotNull { kg ->
+            val chu = taiKhoan.firstOrNull { it.idTaiKhoan == kg.idNguoiTao }
+            val ngay = kg.ngayTao.toLocalDate()
+            val khop = chuan(kg.tenKhongGian).contains(ten) &&
+                    chuan(chu?.tenHienThi.orEmpty()).contains(tenChu) &&
+                    (chu?.sdt.orEmpty()).contains(sdt) &&
+                    (tu == null || !ngay.isBefore(tu)) &&
+                    (den == null || !ngay.isAfter(den))
+            if (khop) DongKhongGianHeThong(kg, chu?.tenHienThi ?: "Không rõ") else null
+        }.sortedWith(compareByDescending<DongKhongGianHeThong> { it.khongGian.ngayTao }.thenByDescending { it.khongGian.idKhongGian })
+
+        val coSo = 20
+        val tongTrang = maxOf(1, (loc2.size + coSo - 1) / coSo)
+        val t = trang.coerceIn(1, tongTrang)
+        return Kq.Ok(TrangKhongGianHeThong(loc2.drop((t - 1) * coSo).take(coSo), t, tongTrang, loc2.size))
+    }
     override fun chiTietTaiKhoan(idTaiKhoan: Int): Kq<ChiTietTaiKhoan> {
         if (giaLapLoi) return matKetNoi()
         quyenAdminApp()?.let { return it }

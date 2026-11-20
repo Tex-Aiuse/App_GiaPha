@@ -27,6 +27,7 @@ import com.example.my_app_giapha.ui.space.CaiDatKhongGianActivity
 import com.example.my_app_giapha.ui.space.QuanLyVaiTroActivity
 import com.example.my_app_giapha.ui.admin.TaiKhoanHeThongActivity
 import com.example.my_app_giapha.ui.admin.ChiTietTaiKhoanActivity
+import com.example.my_app_giapha.ui.admin.KhongGianHeThongActivity
 
 /** Mọi lối đi giữa các màn hình. Dòng ghi "TẠM" sẽ được thay khi làm tới màn đó. */
 object Routes {
@@ -187,8 +188,7 @@ object Routes {
     // ---- AdminApp ----
     fun moDanhSachTaiKhoanHeThong(activity: Activity) = activity.moMoi(TaiKhoanHeThongActivity::class.java)
 
-    fun moDanhSachKhongGianHeThong(activity: Activity) =
-        activity.tam("TẠM: GD-23 Danh sách không gian (bước 11c)")
+    fun moDanhSachKhongGianHeThong(activity: Activity) = activity.moMoi(KhongGianHeThongActivity::class.java)
 
     fun moChiTietTaiKhoan(activity: Activity, idTaiKhoan: Int) =
         activity.startActivity(

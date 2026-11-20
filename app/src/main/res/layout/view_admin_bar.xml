@@ -7,7 +7,7 @@
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/tabAccounts"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -15,14 +15,17 @@
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
+        android:orientation="vertical"
         android:paddingStart="8dp"
         android:paddingEnd="8dp">
 
         <TextView
             android:id="@+id/tvTabAccounts"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:gravity="center"
             android:text="Tài khoản"
             android:textColor="@color/white"
             android:textSize="16sp" />
@@ -31,11 +34,10 @@
             android:id="@+id/lineAccounts"
             android:layout_width="match_parent"
             android:layout_height="3dp"
-            android:layout_gravity="bottom"
             android:background="@color/green_light" />
-    </FrameLayout>
+    </LinearLayout>
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/tabSpaces"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -43,14 +45,17 @@
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
+        android:orientation="vertical"
         android:paddingStart="8dp"
         android:paddingEnd="8dp">
 
         <TextView
             android:id="@+id/tvTabSpaces"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:gravity="center"
             android:text="Không gian"
             android:textColor="@color/white"
             android:textSize="16sp" />
@@ -59,9 +64,8 @@
             android:id="@+id/lineSpaces"
             android:layout_width="match_parent"
             android:layout_height="3dp"
-            android:layout_gravity="bottom"
             android:background="@color/green_light" />
-    </FrameLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="0dp"
