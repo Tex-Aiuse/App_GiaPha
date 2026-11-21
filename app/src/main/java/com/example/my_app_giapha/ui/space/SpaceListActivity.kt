@@ -2,6 +2,7 @@ package com.example.my_app_giapha.ui.space
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -26,6 +27,7 @@ import com.example.my_app_giapha.databinding.ActivitySpaceListBinding
 import com.example.my_app_giapha.databinding.DialogCreateSpaceBinding
 import com.example.my_app_giapha.databinding.ItemSpaceBinding
 import com.example.my_app_giapha.ui.Routes
+import com.example.my_app_giapha.ui.common.ChamNgoaiAnBanPhim
 import com.example.my_app_giapha.ui.common.applySystemBarsPadding
 import com.example.my_app_giapha.ui.common.initialOf
 import com.example.my_app_giapha.ui.common.setRoleBadge
@@ -37,6 +39,11 @@ class SpaceListActivity : AppCompatActivity() {
     private lateinit var b: ActivitySpaceListBinding
     private val repo get() = Services.repository
     private val adapter = SpaceAdapter { Routes.moKhongGian(this, it.khongGian.idKhongGian) }
+    private val chamNgoai = ChamNgoaiAnBanPhim(this)
+
+    /** Chạm ngoài ô "Tìm theo tên không gian" thì ẩn bàn phím, cú chạm đó không mở không gian nào. */
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean =
+        if (chamNgoai.xuLy(ev)) true else super.dispatchTouchEvent(ev)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

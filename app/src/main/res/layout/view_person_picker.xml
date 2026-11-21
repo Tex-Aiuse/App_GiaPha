@@ -40,6 +40,34 @@
             android:textSize="16sp" />
     </LinearLayout>
 
+    <!-- Sau khi chọn: chỉ còn đúng một dòng người đã chọn + nút "Đổi người" -->
+    <LinearLayout
+        android:id="@+id/selectedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:id="@+id/selectedHolder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/btnChange"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackground"
+            android:fontFamily="@font/be_vietnam_pro_bold"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="4dp"
+            android:text="Đổi người"
+            android:textColor="@color/brown_primary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvSearchError"
         android:layout_width="match_parent"

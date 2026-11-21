@@ -16,6 +16,7 @@ import com.example.my_app_giapha.databinding.ViewPersonPickerBinding
 import com.example.my_app_giapha.model.LoaiQuanHe
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.example.my_app_giapha.ui.common.anBanPhim
 import com.example.my_app_giapha.ui.common.hienCuaO
 
 /**
@@ -23,6 +24,8 @@ import com.example.my_app_giapha.ui.common.hienCuaO
  * cheDoCon = true: hiện Loại quan hệ + Ngày xác lập. false (vợ/chồng): hiện Ngày cưới + Thứ tự hôn nhân.
  * loaiTru: id người đã được chọn ở khối khác, không hiện lại trong kết quả.
  * khiDoi: gọi khi chọn hoặc bỏ chọn người.
+ * Chọn xong: ô tìm và danh sách kết quả thu lại, chỉ còn một dòng người đã chọn kèm "Đổi người".
+ * Người đã chọn chỉ mất khi bấm "Đổi người", không mất khi gõ hay xóa chữ.
  */
 class PersonPicker(
     private val b: ViewPersonPickerBinding,
@@ -51,6 +54,7 @@ class PersonPicker(
         b.segType.setOptions(LoaiQuanHe.entries.map { it.nhan }, 0)
         b.segType.onChanged = { i -> if (i >= 0) loai = LoaiQuanHe.entries[i] }
         b.etSearch.doAfterTextChanged { tim(it?.toString().orEmpty()) }
+        b.btnChange.setOnClickListener { doiNguoi() }
         b.fieldXacLap.setOnClickListener {
             chonNgay(ngay) { n -> ngay = n; hienNgay(b.tvXacLap, n) }
         }
@@ -73,10 +77,8 @@ class PersonPicker(
 
     // ------------------------------------------------------------------ nội bộ
 
-    /** Gõ lại từ khóa thì bỏ chọn cũ và tìm lại. */
+    /** Gõ từ khóa thì tìm lại (ô tìm chỉ hiện khi chưa chọn ai). */
     private fun tim(q: String) {
-        val daCoChon = chon != null
-        chon = null
         hienLoi(false)
         b.emptyBox.visibility = View.GONE
         ketQua = if (q.isBlank()) emptyList()
@@ -87,37 +89,64 @@ class PersonPicker(
         if (q.isNotBlank() && ketQua.isEmpty()) b.emptyBox.visibility = View.VISIBLE
         ve()
         capNhatNhom()
-        if (daCoChon) khiDoi()
     }
 
     private fun ve() {
         b.resultsBox.removeAllViews()
         val inflater = LayoutInflater.from(ctx)
         for (kq in ketQua) {
-            val r = ItemSearchResultBinding.inflate(inflater, b.resultsBox, false)
-            val bat = chon?.idO == kq.idO
-            r.tvName.text = kq.hoTen
-            r.avatar.hienCuaO(kq.anh, kq.hoTen)
-            r.tvContext.text = kq.nguCanh
-            r.ivCheck.visibility = if (bat) View.VISIBLE else View.GONE
-            r.root.background = GradientDrawable().apply {
-                cornerRadius = 12 * d
-                setColor(ContextCompat.getColor(ctx, if (bat) R.color.green_light else R.color.surface))
-                setStroke(
-                    d.toInt(),
-                    ContextCompat.getColor(ctx, if (bat) R.color.green_mid else R.color.border_default)
-                )
-            }
-            r.root.setOnClickListener {
-                chon = kq
-                hienLoi(false)
-                if (!cheDoCon) b.etOrder.setText((kq.soHonNhan + 1).toString())   // gợi ý thứ tự tiếp theo
-                ve()
-                capNhatNhom()
-                khiDoi()
-            }
+            val r = veDong(inflater, b.resultsBox, kq, bat = false)
+            r.root.setOnClickListener { chonNguoi(kq) }
             b.resultsBox.addView(r.root)
         }
+    }
+
+    private fun veDong(inflater: LayoutInflater, cha: android.view.ViewGroup, kq: KetQuaTim, bat: Boolean): ItemSearchResultBinding {
+        val r = ItemSearchResultBinding.inflate(inflater, cha, false)
+        r.tvName.text = kq.hoTen
+        r.avatar.hienCuaO(kq.anh, kq.hoTen)
+        r.tvContext.text = kq.nguCanh
+        r.ivCheck.visibility = if (bat) View.VISIBLE else View.GONE
+        r.root.background = GradientDrawable().apply {
+            cornerRadius = 12 * d
+            setColor(ContextCompat.getColor(ctx, if (bat) R.color.green_light else R.color.surface))
+            setStroke(d.toInt(), ContextCompat.getColor(ctx, if (bat) R.color.green_mid else R.color.border_default))
+        }
+        return r
+    }
+
+    private fun chonNguoi(kq: KetQuaTim) {
+        chon = kq
+        hienLoi(false)
+        if (!cheDoCon) b.etOrder.setText((kq.soHonNhan + 1).toString())   // gợi ý thứ tự tiếp theo
+        b.etSearch.anBanPhim()
+        b.etSearch.clearFocus()
+
+        // Thu về một dòng: bỏ ô tìm, danh sách kết quả, báo trống
+        b.fieldSearch.visibility = View.GONE
+        b.resultsBox.visibility = View.GONE
+        b.emptyBox.visibility = View.GONE
+        b.selectedHolder.removeAllViews()
+        val dong = veDong(LayoutInflater.from(ctx), b.selectedHolder, kq, bat = true)
+        dong.root.isClickable = false
+        b.selectedHolder.addView(dong.root)
+        b.selectedBox.visibility = View.VISIBLE
+        capNhatNhom()
+        khiDoi()
+    }
+
+    /** "Đổi người": bỏ người đã chọn, hiện lại ô tìm trống. */
+    private fun doiNguoi() {
+        chon = null
+        b.selectedBox.visibility = View.GONE
+        b.fieldSearch.visibility = View.VISIBLE
+        b.resultsBox.visibility = View.VISIBLE
+        ketQua = emptyList()
+        b.etSearch.setText("")
+        ve()
+        capNhatNhom()
+        b.etSearch.requestFocus()
+        khiDoi()
     }
 
     private fun capNhatNhom() {

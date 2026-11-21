@@ -104,6 +104,7 @@ class AvatarView @JvmOverloads constructor(
         this.anh = anh; this.chuCai = chuCai; this.khung = khung; this.hieuUng = hieuUng
         this.vienChon = vienChon; this.tick = tick; this.khongVien = khongVien; this.banKinhDp = banKinhDp
         this.lamMo = lamMo
+        invalidate()   // đổi ảnh/khung mà không vẽ lại thì ảnh cũ vẫn nằm trên màn hình
     }
 
     fun datVienChon(v: Boolean) {

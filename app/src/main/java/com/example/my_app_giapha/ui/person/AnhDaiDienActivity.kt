@@ -260,6 +260,7 @@ class AnhDaiDienActivity : AppCompatActivity() {
                 is Kq.Loi -> Snackbar.make(b.root, r.thongBao, Snackbar.LENGTH_LONG).show()
                 is Kq.Ok -> {
                     dialog.dismiss()
+                    boAnhMoi()          // ảnh mới chưa lưu mà còn đó thì ảnh lớn vẫn hiện nó, không hiện ảnh vừa chọn dùng lại
                     tai()
                     b.scroll.post { b.scroll.smoothScrollTo(0, 0) }
                     Snackbar.make(b.root, "Đã dùng lại ảnh này", Snackbar.LENGTH_SHORT).show()

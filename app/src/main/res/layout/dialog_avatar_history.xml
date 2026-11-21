@@ -1,47 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Cuộn được để nút không bị đẩy ra ngoài ở chế độ ngang; ảnh cỡ cố định thay vì theo bề rộng hộp -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <com.example.my_app_giapha.ui.common.AvatarView
-        android:id="@+id/avatar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/tvDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/be_vietnam_pro"
-        android:gravity="center"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp" />
+    android:fillViewport="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <com.example.my_app_giapha.ui.common.AvatarView
+            android:id="@+id/avatar"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/be_vietnam_pro"
+            android:gravity="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <!-- Xếp dọc: chữ "Dùng lại ảnh này" luôn đủ chỗ, không bị cắt xuống dòng -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReuse"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="16dp"
+            android:maxLines="1"
+            android:text="Dùng lại ảnh này" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnClose"
             style="@style/Widget.GiaPha.Button.Outlined"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:layout_marginEnd="6dp"
-            android:layout_weight="1"
+            android:layout_marginTop="8dp"
             android:text="Đóng" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnReuse"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:text="Dùng lại ảnh này" />
     </LinearLayout>
-</LinearLayout>
+</ScrollView>
