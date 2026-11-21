@@ -333,6 +333,7 @@ class FakeRepository : Repository {
 
     private fun kiemTraForm(f: FormO): Kq.Loi? {
         if (f.hoTen.isBlank()) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Vui lòng nhập họ tên")
+        if (!soGiayToHopLe(f.cccd)) return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, LOI_SO_GIAY_TO)
         val homNay = java.time.LocalDate.now()
         if (f.ngaySinh != null && f.ngaySinh.isAfter(homNay))
             return loi(LoiApp.DU_LIEU_KHONG_HOP_LE, "Ngày sinh không thể ở tương lai")

@@ -172,13 +172,13 @@
                     android:inputType="textCapWords"
                     android:maxLength="100" />
 
-                <!-- CCCD -->
+                <!-- CCCD/CMND -->
                 <TextView
                     style="@style/Widget.GiaPha.FieldLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="CCCD" />
+                    android:text="CCCD/CMND" />
 
                 <EditText
                     android:id="@+id/etCccd"
@@ -186,10 +186,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="6dp"
-                    android:hint="Số căn cước công dân (12 số)"
+                    android:hint="Để trống, hoặc 9 số (CMND), hoặc 12 số (CCCD)"
                     android:importantForAutofill="no"
                     android:inputType="number"
                     android:maxLength="12" />
+
+                <TextView
+                    android:id="@+id/tvCccdError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/be_vietnam_pro"
+                    android:text="CCCD/CMND phải gồm 9 số (CMND) hoặc 12 số (CCCD)"
+                    android:textColor="@color/danger"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
 
                 <!-- Còn sống -->
                 <LinearLayout

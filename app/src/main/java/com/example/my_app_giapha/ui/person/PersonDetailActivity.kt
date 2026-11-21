@@ -44,7 +44,7 @@ import com.example.my_app_giapha.ui.common.hienCuaO
 
 /**
  * GD-08 — Chi tiết Ô thành viên.
- * Mọi vai trò xem được; nút hành động và dòng CCCD hiện theo quyền.
+ * Mọi vai trò xem được; nút hành động và dòng CCCD/CMND hiện theo quyền.
  * Tải lại mỗi lần hiện lại để thấy thay đổi từ màn con.
  */
 class PersonDetailActivity : AppCompatActivity() {
@@ -133,8 +133,8 @@ class PersonDetailActivity : AppCompatActivity() {
         themDong("Quê quán", o.queQuan ?: "Không rõ")
         if (o.conSong) themDong("Trạng thái", "● Còn sống", R.color.green_dark)
         else themDong("Trạng thái", "Đã mất — " + (o.ngayMat?.format(fmt) ?: "không rõ ngày"))
-        // CCCD: chỉ Admin/Quản lý; vai trò khác bỏ hẳn dòng này khỏi layout
-        if (quanTri) themDong("CCCD", o.cccd?.chunked(3)?.joinToString(" ") ?: "Chưa có")
+        // CCCD/CMND: chỉ Admin/Quản lý; vai trò khác bỏ hẳn dòng này khỏi layout
+        if (quanTri) themDong("CCCD/CMND", o.cccd?.chunked(3)?.joinToString(" ") ?: "Chưa có")
 
         // quan hệ gia đình
         b.relationGroups.removeAllViews()

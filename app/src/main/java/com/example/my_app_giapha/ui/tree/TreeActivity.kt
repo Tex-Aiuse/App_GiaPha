@@ -135,7 +135,7 @@ class TreeActivity : AppCompatActivity() {
         b.bandFilter.visibility = if (loc != null) View.VISIBLE else View.GONE
         if (loc != null) {
             val ten = du.oThanhVien.firstOrNull { it.idOThanhVien == loc.idMoc }?.hoTen.orEmpty()
-            b.tvFilterInfo.text = "Đang lọc ${loc.n} đời quanh $ten ·"
+            b.tvFilterInfo.text = "Đang lọc ${loc.n} đời quanh $ten"
         }
         val kq = if (loc != null) LayoutEngine.tinh(du, loc = BoLocDoi(loc.idMoc, loc.n)) else kqDay
 
@@ -147,12 +147,17 @@ class TreeActivity : AppCompatActivity() {
 
     // ---- lọc số đời quanh Ô đang chọn (QUYET_DINH_BO_SUNG mục 3, đã đổi mốc từ "Ô của bạn" sang "Ô đang chọn") ----
 
-    /** Nút lọc chỉ sáng khi đã chọn một thẻ. */
+    /**
+     * Chỉ lọc được từ cây gốc: đang lọc thì ẩn nút, muốn lọc lại phải "Bỏ lọc" trước.
+     * Ở cây gốc, nút chỉ sáng khi đã chọn một thẻ.
+     */
     private fun capNhatNutLoc() {
+        b.btnFilter.visibility = if (chiXem || locDangBat != null) View.GONE else View.VISIBLE
         b.btnFilter.alpha = if (idDangChon != null) 1f else 0.4f
     }
 
     private fun khiBamNutLoc() {
+        if (locDangBat != null) return
         if (idDangChon == null) {
             Snackbar.make(b.root, "Chạm vào một thẻ để chọn Ô, rồi bấm lọc số đời quanh Ô đó", Snackbar.LENGTH_SHORT)
                 .apply { anchorView = if (b.fab.visibility == View.VISIBLE) b.fab else null }.show()
@@ -171,6 +176,7 @@ class TreeActivity : AppCompatActivity() {
 
     private fun moHopLoc() {
         val du = duHienTai ?: return
+        if (locDangBat != null) return          // cây đang được lọc: không lọc chồng
         val moc = idDangChon ?: return
         val nMax = LayoutEngine.soDoiToiDa(du, moc)
         if (nMax == null) {
@@ -187,13 +193,14 @@ class TreeActivity : AppCompatActivity() {
             d.etN.setSelection(d.etN.text.length)
             d.tvError.visibility = View.GONE
         }
-        val macDinh = (locDangBat?.n ?: minOf(3, nMax)).coerceIn(1, nMax)
+        val macDinh = minOf(3, nMax).coerceIn(1, nMax)
         fun soHienTai() = d.etN.text.toString().toIntOrNull()?.coerceIn(1, nMax) ?: macDinh
         hienSo(macDinh)
 
         d.btnMinus.setOnClickListener { hienSo((soHienTai() - 1).coerceAtLeast(1)) }
         d.btnPlus.setOnClickListener { hienSo((soHienTai() + 1).coerceAtMost(nMax)) }
-        d.btnAll.setOnClickListener { dialog.dismiss(); datLoc(null) }
+        d.btnAll.text = "Hủy"                   // cây gốc chưa lọc nên không còn "Hiện tất cả"
+        d.btnAll.setOnClickListener { dialog.dismiss() }
         d.btnApply.setOnClickListener {
             val v = d.etN.text.toString().toIntOrNull()
             if (v == null || v !in 1..nMax) {

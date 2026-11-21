@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/peach_light"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="gone">
 
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ellipsize="end"
-            android:gravity="center_vertical|end"
+            android:gravity="center_vertical|start"
             android:maxLines="1"
             android:paddingStart="16dp"
             android:fontFamily="@font/be_vietnam_pro_semibold"

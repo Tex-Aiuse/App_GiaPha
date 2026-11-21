@@ -11,6 +11,7 @@ import androidx.core.widget.doAfterTextChanged
 import com.example.my_app_giapha.R
 import com.example.my_app_giapha.data.FormO
 import com.example.my_app_giapha.data.Kq
+import com.example.my_app_giapha.data.soGiayToHopLe
 import com.example.my_app_giapha.data.Services
 import com.example.my_app_giapha.databinding.ActivityPersonFormBinding
 import com.example.my_app_giapha.model.GioiTinh
@@ -97,6 +98,14 @@ class PersonFormActivity : AppCompatActivity() {
             if (!coFocus) hienLoiTen(b.etName.text.isBlank())
         }
 
+        // CCCD/CMND: để trống, 9 hoặc 12 số. Đang gõ thì tắt lỗi khi đã hợp lệ; rời ô mà sai thì báo.
+        b.etCccd.doAfterTextChanged {
+            if (soGiayToHopLe(it?.toString())) hienLoiCccd(false)
+        }
+        b.etCccd.setOnFocusChangeListener { _, coFocus ->
+            if (!coFocus) hienLoiCccd(!soGiayToHopLe(b.etCccd.text.toString()))
+        }
+
         b.fieldBirth.setOnClickListener {
             chonNgay(ngaySinh, null) { d ->
                 ngaySinh = d
@@ -153,6 +162,11 @@ class PersonFormActivity : AppCompatActivity() {
     private fun luu() {
         val ten = b.etName.text.toString().trim()
         if (ten.isEmpty()) { hienLoiTen(true); return }
+        if (!soGiayToHopLe(b.etCccd.text.toString())) {
+            hienLoiCccd(true)
+            b.scroll.post { b.scroll.smoothScrollTo(0, b.etCccd.top) }
+            return
+        }
         val conSong = b.swAlive.isChecked
         if (!conSong && ngayMat == null) { hienLoiNgayMat(true); return }
 
@@ -213,6 +227,11 @@ class PersonFormActivity : AppCompatActivity() {
     private fun hienLoiTen(co: Boolean) {
         b.etName.isActivated = co
         b.tvNameError.visibility = if (co) View.VISIBLE else View.GONE
+    }
+
+    private fun hienLoiCccd(co: Boolean) {
+        b.etCccd.isActivated = co
+        b.tvCccdError.visibility = if (co) View.VISIBLE else View.GONE
     }
 
     private fun hienLoiNgayMat(co: Boolean) {

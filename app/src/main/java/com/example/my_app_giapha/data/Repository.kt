@@ -62,6 +62,17 @@ data class FormO(
     val ngayMat: LocalDate?
 )
 
+/**
+ * Số CCCD/CMND: được để trống (null, vì người lớn tuổi có thể không có), hoặc đúng 9 số (CMND cũ), hoặc đúng 12 số (CCCD).
+ * Dùng chung cho form và repository.
+ */
+fun soGiayToHopLe(s: String?): Boolean {
+    val v = s?.trim().orEmpty()
+    return v.isEmpty() || (v.all { it in '0'..'9' } && (v.length == 9 || v.length == 12))
+}
+
+const val LOI_SO_GIAY_TO = "CCCD/CMND phải gồm 9 số (CMND) hoặc 12 số (CCCD)"
+
 /** Một kết quả tìm Ô kèm ngữ cảnh để phân biệt người trùng tên. */
 data class KetQuaTim(
     val idO: Int,
