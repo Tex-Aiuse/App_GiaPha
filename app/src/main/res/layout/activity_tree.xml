@@ -52,8 +52,13 @@
 
         <TextView
             android:id="@+id/tvFilterInfo"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical|end"
+            android:maxLines="1"
+            android:paddingStart="16dp"
             android:fontFamily="@font/be_vietnam_pro_semibold"
             android:textColor="@color/text_primary"
             android:textSize="13sp" />
@@ -88,6 +93,20 @@
             android:id="@+id/stateView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <!-- Lọc số đời: chỉ sáng khi đã chọn một thẻ; lọc quanh thẻ đó. Nằm ngoài menu, không có nút zoom +/− -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="16dp"
+            android:alpha="0.4"
+            android:contentDescription="Lọc số đời"
+            android:visibility="gone"
+            app:backgroundTint="@color/brown_primary"
+            app:srcCompat="@drawable/ic_filter"
+            app:tint="@color/white" />
 
         <!-- Chỉ Admin và Quản lý thấy; ẩn mặc định, bật theo vai trò sau khi tải -->
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

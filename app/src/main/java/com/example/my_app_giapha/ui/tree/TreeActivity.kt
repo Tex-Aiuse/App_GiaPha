@@ -57,8 +57,8 @@ class TreeActivity : AppCompatActivity() {
     private var daCoCay = false
     private var duHienTai: DuLieuCay? = null
     private lateinit var kho: LocDoiStore
-    private var locN: Int? = null               // số đời đang lọc (null = không lọc)
-    private var lyDoKhongLoc: String? = null    // null = người xem lọc được
+    private var locDangBat: LocDoi? = null      // bộ lọc đang áp dụng (null = không lọc)
+    private var idDangChon: Int? = null         // thẻ đang chọn trên cây
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,11 +69,17 @@ class TreeActivity : AppCompatActivity() {
 
         b.appBar.setup(this, "")
         b.fab.applyBottomMarginInset()
+        b.btnFilter.applyBottomMarginInset()
         b.fab.setOnClickListener { Routes.moThemO(this, idKhongGian) }
         b.bandReadOnly.visibility = if (chiXem) View.VISIBLE else View.GONE
         if (!chiXem) {
-            b.viewport.khiChamThe = { idO -> Routes.moChiTietO(this, idKhongGian, idO) }
+            // Chạm một thẻ = chọn; chạm đúp = mở GD-08
+            b.viewport.choPhepChon = true
+            b.viewport.khiDoiChon = { id -> idDangChon = id; capNhatNutLoc() }
+            b.viewport.khiChamDupThe = { idO -> Routes.moChiTietO(this, idKhongGian, idO) }
             b.viewport.khiBamAn = { nut -> anQuanHe(nut) }
+            b.btnFilter.visibility = View.VISIBLE
+            b.btnFilter.setOnClickListener { khiBamNutLoc() }
         }
         kho = LocDoiStore(this)
         b.tvFilterClear.setOnClickListener { datLoc(null) }
@@ -109,6 +115,7 @@ class TreeActivity : AppCompatActivity() {
             datNutBenPhai(du.khongGian.cheDoRiengTu)
         }
         b.fab.visibility = if (!chiXem && du.toi.vaiTro.laQuanTri) View.VISIBLE else View.GONE
+        b.viewport.cay.idBanThan = if (chiXem) null else du.toi.idOThanhVien      // Ô của chính mình: viền hồng + "Bạn ở đây"
 
         if (du.oThanhVien.isEmpty()) {
             b.stateView.showEmpty(
@@ -119,52 +126,68 @@ class TreeActivity : AppCompatActivity() {
             b.stateView.hide()
         }
 
-        // Lọc số đời: chỉ áp dụng khi Ô của người xem đang nằm trên cây
+        // Lọc số đời quanh Ô mốc đã lưu. Mốc không còn trên cây chính (bị xóa, bị ẩn quan hệ) thì không lọc.
         val kqDay = LayoutEngine.tinh(du)
-        val moc = du.toi.idOThanhVien
-        lyDoKhongLoc = tinhLyDoKhongLoc(du, moc, kqDay)
-        val n = if (moc != null && lyDoKhongLoc == null) kho.doc(du.toi.idTaiKhoan, idKhongGian) else null
-        locN = n
-        b.bandFilter.visibility = if (n != null) View.VISIBLE else View.GONE
-        if (n != null) b.tvFilterInfo.text = "Đang lọc $n đời ·"
-        val kq = if (moc != null && n != null) LayoutEngine.tinh(du, loc = BoLocDoi(moc, n)) else kqDay
+        val luu = if (chiXem) null else kho.doc(du.toi.idTaiKhoan, idKhongGian)
+        val hopLe = luu != null && kqDay.the.firstOrNull { it.id == luu.idMoc }?.doi != null
+        locDangBat = if (hopLe) luu else null
+        val loc = locDangBat
+        b.bandFilter.visibility = if (loc != null) View.VISIBLE else View.GONE
+        if (loc != null) {
+            val ten = du.oThanhVien.firstOrNull { it.idOThanhVien == loc.idMoc }?.hoTen.orEmpty()
+            b.tvFilterInfo.text = "Đang lọc ${loc.n} đời quanh $ten ·"
+        }
+        val kq = if (loc != null) LayoutEngine.tinh(du, loc = BoLocDoi(loc.idMoc, loc.n)) else kqDay
 
         b.viewport.datDuLieu(kq, du.oThanhVien, anh = du.anhDangDung)
+        idDangChon = b.viewport.cay.idTheChon      // thẻ đang chọn có thể đã bị lọc mất
+        capNhatNutLoc()
         daCoCay = true
     }
 
-    // ---- lọc số đời (QUYET_DINH_BO_SUNG mục 3) ----
+    // ---- lọc số đời quanh Ô đang chọn (QUYET_DINH_BO_SUNG mục 3, đã đổi mốc từ "Ô của bạn" sang "Ô đang chọn") ----
 
-    /** null = lọc được; ngược lại là lý do ngắn hiện trong ngoặc ở mục menu. */
-    private fun tinhLyDoKhongLoc(du: DuLieuCay, moc: Int?, kq: KetQuaBoCuc): String? {
-        if (moc == null || du.oThanhVien.none { it.idOThanhVien == moc }) return "cần được gán Ô"
-        val the = kq.the.firstOrNull { it.id == moc } ?: return "Ô của bạn nằm trong quan hệ ẩn"
-        if (the.doi == null) return "Ô của bạn chưa nối với ai"
-        return null
+    /** Nút lọc chỉ sáng khi đã chọn một thẻ. */
+    private fun capNhatNutLoc() {
+        b.btnFilter.alpha = if (idDangChon != null) 1f else 0.4f
     }
 
-    /** n = null: bỏ lọc. Lưu trên máy rồi vẽ lại từ dữ liệu đang có. */
-    private fun datLoc(n: Int?) {
+    private fun khiBamNutLoc() {
+        if (idDangChon == null) {
+            Snackbar.make(b.root, "Chạm vào một thẻ để chọn Ô, rồi bấm lọc số đời quanh Ô đó", Snackbar.LENGTH_SHORT)
+                .apply { anchorView = if (b.fab.visibility == View.VISIBLE) b.fab else null }.show()
+            return
+        }
+        moHopLoc()
+    }
+
+    /** loc = null: bỏ lọc. Lưu trên máy rồi vẽ lại từ dữ liệu đang có. */
+    private fun datLoc(loc: LocDoi?) {
         val du = duHienTai ?: return
-        kho.luu(du.toi.idTaiKhoan, idKhongGian, n)
+        kho.luu(du.toi.idTaiKhoan, idKhongGian, loc)
         hienCay(du)
         b.viewport.post { b.viewport.scrollTo(0, 0) }
     }
 
     private fun moHopLoc() {
         val du = duHienTai ?: return
-        val moc = du.toi.idOThanhVien ?: return
-        val nMax = LayoutEngine.soDoiToiDa(du, moc) ?: return
+        val moc = idDangChon ?: return
+        val nMax = LayoutEngine.soDoiToiDa(du, moc)
+        if (nMax == null) {
+            Snackbar.make(b.root, "Ô này chưa nối với ai trên cây nên không lọc được", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+        val ten = du.oThanhVien.firstOrNull { it.idOThanhVien == moc }?.hoTen.orEmpty()
         val d = DialogLocDoiBinding.inflate(LayoutInflater.from(this))
         val dialog = AlertDialog.Builder(this).setView(d.root).create()
 
-        d.tvHint.text = "Số đời hiển thị quanh Ô của bạn, tính cả bạn (từ 1 đến $nMax)."
+        d.tvHint.text = "Số đời hiển thị quanh $ten, tính cả người này (từ 1 đến $nMax)."
         fun hienSo(v: Int) {
             d.etN.setText(v.toString())
             d.etN.setSelection(d.etN.text.length)
             d.tvError.visibility = View.GONE
         }
-        val macDinh = (locN ?: minOf(3, nMax)).coerceIn(1, nMax)
+        val macDinh = (locDangBat?.n ?: minOf(3, nMax)).coerceIn(1, nMax)
         fun soHienTai() = d.etN.text.toString().toIntOrNull()?.coerceIn(1, nMax) ?: macDinh
         hienSo(macDinh)
 
@@ -179,7 +202,7 @@ class TreeActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             dialog.dismiss()
-            datLoc(v)
+            datLoc(LocDoi(moc, v))
         }
 
         dialog.show()
@@ -290,18 +313,9 @@ class TreeActivity : AppCompatActivity() {
     private fun moMenu(neo: View) {
         val vt = vaiTro ?: return
         val muc = mutableListOf<Pair<String, () -> Unit>>()
-        var chiSoKhoa = -1
+
         muc += "Danh sách thành viên" to { Routes.moDanhSachThanhVien(this, idKhongGian) }
         if (vt != VaiTro.KHACH_TAM) muc += "Tạo mã lời mời" to { Routes.moMaMoi(this, idKhongGian) }
-
-        // Mọi vai trò đều thấy mục này; ai chưa có Ô thì bị vô hiệu
-        val ly = lyDoKhongLoc
-        if (ly != null) {
-            chiSoKhoa = muc.size
-            muc += "Lọc số đời ($ly)" to { }
-        } else {
-            muc += (if (locN != null) "Lọc số đời (đang lọc $locN)" else "Lọc số đời") to { moHopLoc() }
-        }
 
         if (vt.laQuanTri) {
             val n = duHienTai?.let { danhSachDuongAn(it).size } ?: 0
@@ -312,7 +326,7 @@ class TreeActivity : AppCompatActivity() {
             muc += "Quản lý vai trò" to { Routes.moQuanLyVaiTro(this, idKhongGian) }
         }
         PopupMenu(this, neo).apply {
-            muc.forEachIndexed { i, m -> menu.add(0, i, i, m.first).isEnabled = i != chiSoKhoa }
+            muc.forEachIndexed { i, m -> menu.add(0, i, i, m.first) }
             setOnMenuItemClickListener { muc[it.itemId].second(); true }
             show()
         }

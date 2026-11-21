@@ -20,7 +20,8 @@ import com.example.my_app_giapha.model.Avatar
  * Khung xem cây của GD-06 và GD-24: bọc một TreeView và xử lý cử chỉ.
  *  - Một ngón: kéo tự do mọi hướng (kể cả xéo), thả tay thì trượt tiếp (fling).
  *  - Hai ngón: phóng to/thu nhỏ liên tục trong khoảng 50%..150%, giữ nguyên điểm giữa hai ngón.
- *  - Chạm một thẻ: báo id Ô qua khiChamThe.
+ *  - Chạm một thẻ: CHỌN thẻ (viền ngoài), báo qua khiDoiChon. Chạm trống: bỏ chọn.
+ *  - Chạm đúp thẻ đang chọn: mở chi tiết, báo qua khiChamDupThe.
  * Không có nút +/− (loại bỏ rồi)
  */
 class TreeViewport @JvmOverloads constructor(
@@ -36,8 +37,24 @@ class TreeViewport @JvmOverloads constructor(
 
     val cay = TreeView(context)
 
-    /** Nhận id Ô khi người dùng chạm một thẻ. */
-    var khiChamThe: ((Int) -> Unit)? = null
+    /** Nhận id Ô khi người dùng chạm đúp một thẻ (mở chi tiết). */
+    var khiChamDupThe: ((Int) -> Unit)? = null
+
+    /** Gọi khi thẻ đang chọn đổi: id Ô, hoặc null khi bỏ chọn. */
+    var khiDoiChon: ((Int?) -> Unit)? = null
+
+    /** Tắt ở chế độ chỉ xem (AdminApp). */
+    var choPhepChon: Boolean = false
+        set(v) {
+            field = v
+            if (!v && cay.idTheChon != null) { cay.idTheChon = null; khiDoiChon?.invoke(null) }
+        }
+
+    fun datChon(id: Int?) {
+        if (cay.idTheChon == id) return
+        cay.idTheChon = id
+        khiDoiChon?.invoke(id)
+    }
 
     /** Chỉ Admin/Quản lý: nhấn giữ một đường nối để chọn, bấm nhãn "Ẩn" thì gọi khiBamAn. */
     var choPhepAn: Boolean = false
@@ -95,7 +112,16 @@ class TreeViewport @JvmOverloads constructor(
                 cay.chonNut(null)
                 return true
             }
-            cay.idTheTai(px, py)?.let { khiChamThe?.invoke(it) }
+            if (choPhepChon) datChon(cay.idTheTai(px, py))     // chạm trống: bỏ chọn
+            return true
+        }
+
+        /** Chạm đúp: chỉ mở khi cú chạm thứ hai rơi đúng thẻ vừa chọn ở cú chạm đầu. */
+        override fun onDoubleTapEvent(e: MotionEvent): Boolean {
+            if (e.actionMasked != MotionEvent.ACTION_UP || !choPhepChon) return false
+            val id = cay.idTheTai(e.x + scrollX, e.y + scrollY) ?: return false
+            if (id != cay.idTheChon) return false
+            khiChamDupThe?.invoke(id)
             return true
         }
     })
@@ -175,6 +201,7 @@ class TreeViewport @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
         super.onSizeChanged(w, h, ow, oh)
+        cay.khungNhinRongPx = w       // dải "Đời" phủ hết bề rộng khung nhìn
         cuonToi(scrollX, scrollY)
     }
 }

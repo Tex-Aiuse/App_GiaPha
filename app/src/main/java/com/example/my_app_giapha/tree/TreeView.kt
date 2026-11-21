@@ -62,8 +62,38 @@ class TreeView @JvmOverloads constructor(
             invalidate()
         }
 
+    /** Kích thước THẬT của nội dung cây (dùng cho giới hạn cuộn). */
     val rongDp: Float get() = ketQua?.rong ?: 0f
     val caoDp: Float get() = ketQua?.cao ?: 0f
+
+    /** Bề rộng khung nhìn (px). Dải "Đời" được vẽ rộng ít nhất bằng khung nhìn, để thu nhỏ/xoay ngang không còn khoảng trống. */
+    var khungNhinRongPx: Int = 0
+        set(v) {
+            if (v == field) return
+            field = v
+            requestLayout()
+            invalidate()
+        }
+
+    private fun rongVeDp(kq: KetQuaBoCuc): Float = maxOf(kq.rong, khungNhinRongPx / (mat * heSo))
+
+    // ---- chọn thẻ (chạm một lần) và thẻ của chính người xem ----
+
+    /** Thẻ đang chọn: vẽ viền ngoài. Chạm đúp mới mở chi tiết. */
+    var idTheChon: Int? = null
+        set(v) {
+            if (v == field) return
+            field = v
+            invalidate()
+        }
+
+    /** Ô của chính người xem (đã được gán): viền hồng + nhãn "Bạn ở đây". */
+    var idBanThan: Int? = null
+        set(v) {
+            if (v == field) return
+            field = v
+            invalidate()
+        }
 
     /** Toạ độ chạm tính theo pixel của view; trả về id Ô nếu chạm trúng thẻ. */
     fun idTheTai(xPx: Float, yPx: Float): Int? {
@@ -154,6 +184,14 @@ class TreeView @JvmOverloads constructor(
         color = Color.WHITE; textSize = 13f; typeface = fontDam; textAlign = Paint.Align.CENTER
     }
     private val cuVuongMien = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = vang }
+    private val hong = ResourcesCompat.getColor(resources, R.color.self_pink, null)
+    private val cuVienHong = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 2.5f; color = hong }
+    private val cuNenHong = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = hong }
+    private val cuVienThChon = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 2.5f; color = nau }
+    private val cuQuangTheChon = Paint(cuVienThChon).apply { strokeWidth = 7f; alpha = 60 }
+    private val chuBanODay = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE; textSize = 7f; typeface = fontDam; textAlign = Paint.Align.CENTER
+    }
 
     private val chuCai = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         color = nau; textSize = 16f; typeface = fontDam; textAlign = Paint.Align.CENTER
@@ -184,6 +222,7 @@ class TreeView @JvmOverloads constructor(
         ketQua = kq
         nutChon = null
         theChon = emptySet()
+        if (idTheChon != null && kq.the.none { it.id == idTheChon }) idTheChon = null   // thẻ đã biến mất (bị lọc/xóa)
         this.cauHinh = cauHinh
         oTheoId = o.associateBy { it.idOThanhVien }
         // Ảnh nhỏ (256px) vì thẻ chỉ rộng 36 đơn vị; AnhLoader có cache nên lần sau không giải mã lại
@@ -219,7 +258,7 @@ class TreeView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val kq = ketQua
-        val w = if (kq == null) 0 else ceil(kq.rong * mat * heSo).toInt()
+        val w = if (kq == null) 0 else ceil(rongVeDp(kq) * mat * heSo).toInt()
         val h = if (kq == null) 0 else ceil(kq.cao * mat * heSo).toInt()
         setMeasuredDimension(
             resolveSize(w, widthMeasureSpec),
@@ -251,7 +290,7 @@ class TreeView @JvmOverloads constructor(
             if (i % 2 == 0) {
                 cuNen.color = dai1
                 cuNen.alpha = 120
-                c.drawRect(0f, d.y, kq.rong, d.y + d.cao, cuNen)
+                c.drawRect(0f, d.y, rongVeDp(kq), d.y + d.cao, cuNen)
                 cuNen.alpha = 255
             }
             val nhan = "Đời ${d.doi}"
@@ -328,12 +367,24 @@ class TreeView @JvmOverloads constructor(
         khung.set(t.x, t.y, t.x + w, t.y + h)
         c.drawRoundRect(khung, 10f, 10f, cuThe)
         val truongToc = o?.laTruongToc == true
-        if (truongToc) {
+        val banThan = t.id == idBanThan
+        if (banThan) {
+            khung.inset(1.25f, 1.25f)
+            c.drawRoundRect(khung, 8.75f, 8.75f, cuVienHong)
+        } else if (truongToc) {
             khung.inset(1f, 1f)
             c.drawRoundRect(khung, 9f, 9f, cuVienVang)
         } else {
             khung.inset(0.5f, 0.5f)
             c.drawRoundRect(khung, 9.5f, 9.5f, cuVienThe)
+        }
+
+        if (t.id == idTheChon) {
+            // viền ngoài thẻ đang chọn: quầng mờ + nét nâu, nằm ngoài mép thẻ
+            khung.set(t.x, t.y, t.x + w, t.y + h)
+            khung.inset(-3.5f, -3.5f)
+            c.drawRoundRect(khung, 13f, 13f, cuQuangTheChon)
+            c.drawRoundRect(khung, 13f, 13f, cuVienThChon)
         }
 
         if (t.id in theChon) {
@@ -371,6 +422,19 @@ class TreeView @JvmOverloads constructor(
         }
 
         if (truongToc) veVuongMien(c, cx, t.y)
+        if (banThan) veNhanBanODay(c, t.x, t.y)
+    }
+
+    /** Nhãn hồng "Bạn ở đây" ở góc trên trái thẻ, lệch ra ngoài một chút để không đè vương miện và đường nối ở giữa. */
+    private fun veNhanBanODay(c: Canvas, x: Float, y: Float) {
+        val chu = "Bạn ở đây"
+        val rong = chuBanODay.measureText(chu) + 6f
+        val cao = 12f
+        val trai = x - 18f
+        val tren = y - 7f
+        khung.set(trai, tren, trai + rong, tren + cao)
+        c.drawRoundRect(khung, cao / 2, cao / 2, cuNenHong)
+        c.drawText(chu, trai + rong / 2, tren + cao / 2 - (chuBanODay.ascent() + chuBanODay.descent()) / 2f, chuBanODay)
     }
 
     /** Vương miện nhỏ vàng đè lên mép trên thẻ. */
