@@ -40,6 +40,51 @@
             android:textSize="12sp" />
     </LinearLayout>
 
+    <!-- Dải "Chọn người thứ 2": hiện khi đang tra cứu cách gọi (menu ba chấm); chạm một thẻ để chọn, "Hủy" để thoát -->
+    <LinearLayout
+        android:id="@+id/bandCachGoi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/green_band"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_info" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/be_vietnam_pro_medium"
+            android:text="Chọn người thứ 2"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvCachGoiHuy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:fontFamily="@font/be_vietnam_pro_bold"
+            android:gravity="center_vertical"
+            android:minHeight="32dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Hủy"
+            android:textColor="@color/brown_primary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
     <!-- Dải "Đang lọc N đời · Bỏ lọc": chỉ hiện khi đang lọc số đời -->
     <LinearLayout
         android:id="@+id/bandFilter"

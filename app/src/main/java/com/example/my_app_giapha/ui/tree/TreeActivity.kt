@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.example.my_app_giapha.R
 import com.example.my_app_giapha.data.DuLieuCay
@@ -36,6 +37,8 @@ import androidx.appcompat.app.AlertDialog
 import com.example.my_app_giapha.databinding.DialogLocDoiBinding
 import com.example.my_app_giapha.tree.BoLocDoi
 import com.example.my_app_giapha.tree.KetQuaBoCuc
+import com.example.my_app_giapha.tree.DuLieuGoi
+import com.example.my_app_giapha.tree.QuanHeGoi
 
 /**
  * GD-06 — Cây gia phả của một Không gian.
@@ -59,6 +62,8 @@ class TreeActivity : AppCompatActivity() {
     private lateinit var kho: LocDoiStore
     private var locDangBat: LocDoi? = null      // bộ lọc đang áp dụng (null = không lọc)
     private var idDangChon: Int? = null         // thẻ đang chọn trên cây
+    private var idNguoiThu1: Int? = null        // khác null: đang tra cứu cách gọi, đây là người thứ nhất; chờ chọn người thứ hai
+    private lateinit var quayLaiCachGoi: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,14 +80,21 @@ class TreeActivity : AppCompatActivity() {
         if (!chiXem) {
             // Chạm một thẻ = chọn; chạm đúp = mở GD-08
             b.viewport.choPhepChon = true
-            b.viewport.khiDoiChon = { id -> idDangChon = id; capNhatNutLoc() }
-            b.viewport.khiChamDupThe = { idO -> Routes.moChiTietO(this, idKhongGian, idO) }
+            b.viewport.khiDoiChon = { id -> khiDoiChon(id) }
+            b.viewport.khiChamDupThe = { idO -> if (idNguoiThu1 == null) Routes.moChiTietO(this, idKhongGian, idO) }
             b.viewport.khiBamAn = { nut -> anQuanHe(nut) }
             b.btnFilter.visibility = View.VISIBLE
             b.btnFilter.setOnClickListener { khiBamNutLoc() }
         }
         kho = LocDoiStore(this)
         b.tvFilterClear.setOnClickListener { datLoc(null) }
+
+        // Tra cứu cách gọi: nút Hủy trên dải xanh hoặc nút Back đều thoát chế độ chọn người thứ hai
+        b.tvCachGoiHuy.setOnClickListener { thoatCachGoi() }
+        quayLaiCachGoi = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() { thoatCachGoi() }
+        }
+        onBackPressedDispatcher.addCallback(this, quayLaiCachGoi)
     }
 
     override fun onResume() {
@@ -141,8 +153,52 @@ class TreeActivity : AppCompatActivity() {
 
         b.viewport.datDuLieu(kq, du.oThanhVien, anh = du.anhDangDung)
         idDangChon = b.viewport.cay.idTheChon      // thẻ đang chọn có thể đã bị lọc mất
+        if (idNguoiThu1 != null && du.oThanhVien.none { it.idOThanhVien == idNguoiThu1 }) thoatCachGoi()   // người thứ nhất vừa bị xóa
         capNhatNutLoc()
         daCoCay = true
+    }
+
+    // ---- tra cứu cách gọi: chọn một thẻ → menu "Tra cứu cách gọi" → dải "Chọn người thứ 2" → chạm thẻ thứ hai → hộp thoại ----
+
+    /** Chọn thẻ từ viewport. Đang tra cứu thì người thứ nhất luôn giữ chọn, chạm thẻ khác là chọn người thứ hai. */
+    private fun khiDoiChon(id: Int?) {
+        val nguoi1 = idNguoiThu1
+        if (nguoi1 == null) {
+            idDangChon = id
+            capNhatNutLoc()
+            return
+        }
+        if (id == nguoi1) return
+        if (id == null) { b.viewport.datChon(nguoi1); return }      // chạm vào chỗ trống: giữ người thứ nhất
+        thoatCachGoi()
+        idDangChon = id
+        capNhatNutLoc()
+        hienCachGoi(nguoi1, id)
+    }
+
+    private fun batDauCachGoi() {
+        val id = idDangChon
+        if (id == null) {
+            Snackbar.make(b.root, "Chạm vào một thẻ để chọn người thứ nhất, rồi chọn Tra cứu cách gọi", Snackbar.LENGTH_SHORT)
+                .apply { anchorView = if (b.fab.visibility == View.VISIBLE) b.fab else null }.show()
+            return
+        }
+        idNguoiThu1 = id
+        b.bandCachGoi.visibility = View.VISIBLE
+        quayLaiCachGoi.isEnabled = true
+    }
+
+    private fun thoatCachGoi() {
+        idNguoiThu1 = null
+        b.bandCachGoi.visibility = View.GONE
+        quayLaiCachGoi.isEnabled = false
+    }
+
+    /** Tính trên toàn bộ dữ liệu cây (kể cả người đang bị lọc ẩn và quan hệ đang ẩn), không phải trên phần đang vẽ. */
+    private fun hienCachGoi(idA: Int, idB: Int) {
+        val du = duHienTai ?: return
+        val kq = QuanHeGoi.tinh(DuLieuGoi(du.oThanhVien, du.quanHeChaMe, du.honNhan), idA, idB) ?: return
+        moHopCachGoi(kq)
     }
 
     // ---- lọc số đời quanh Ô đang chọn (QUYET_DINH_BO_SUNG mục 3, đã đổi mốc từ "Ô của bạn" sang "Ô đang chọn") ----
@@ -322,6 +378,7 @@ class TreeActivity : AppCompatActivity() {
         val muc = mutableListOf<Pair<String, () -> Unit>>()
 
         muc += "Danh sách thành viên" to { Routes.moDanhSachThanhVien(this, idKhongGian) }
+        muc += "Tra cứu cách gọi" to { batDauCachGoi() }
         if (vt != VaiTro.KHACH_TAM) muc += "Tạo mã lời mời" to { Routes.moMaMoi(this, idKhongGian) }
 
         if (vt.laQuanTri) {
